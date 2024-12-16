@@ -20,7 +20,7 @@ L'application est structurée autour de plusieurs composants clés :
 
 ## Composants
 
-### 1. `server.py`
+### 1. `hl7Server.py`
 
 **Responsabilité** : Gère la réception des messages HL7 via une connexion MLLP et leur envoi après transformation.
 
@@ -81,7 +81,7 @@ async def messageSender(message):
 ```
 ---
 
-### 4. `transformer.py`
+### 4. `hl7Transformer.py`
 
 **Responsabilité** : Modifie les segments HL7 selon les règles spécifiées.
 
