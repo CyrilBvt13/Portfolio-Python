@@ -1,0 +1,6 @@
+#Fichier de configuration du serveur
+target=127.0.0.1
+input_port=5994
+output_port=5995
+log_mode=1
+
