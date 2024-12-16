@@ -30,15 +30,6 @@ L'application est structurée autour de plusieurs composants clés :
 - Lorsqu'un message HL7 est reçu, il est traité par la fonction `messageReceiver()`, qui extrait les segments, les affiche, puis envoie un accusé de réception (ACK).
 - Après avoir reçu le message, il est transmis à la fonction `transform_message()` pour transformation, puis envoyé à un autre serveur via la fonction `messageSender()`.
 
-**Exemple de code** :
-```python
-async def startServer():
-    input_port = int(readConf()[1])
-    isStarted = True
-    async with await start_hl7_server(messageReceiver, port=input_port, encoding='iso-8859/1') as hl7_server:
-        await hl7_server.serve_forever()
-```
-
 ---
 
 ### 2. `hl7Receiver.py`
@@ -48,17 +39,6 @@ async def startServer():
 **Fonctionnement** :
 - La fonction `messageReceiver()` est appelée chaque fois qu'une connexion est établie avec le serveur HL7. Elle lit les messages HL7 entrants, les affiche, puis envoie un ACK (Acknowledgment) au client.
 - Le message reçu est ensuite transformé par la fonction `transform_message()`, avant d'être renvoyé à un autre système via la fonction `messageSender()`.
-
-**Exemple de code** :
-```python
-async def messageReceiver(hl7_reader, hl7_writer):
-    while not hl7_writer.is_closing():
-        hl7_message = await hl7_reader.readmessage()
-        hl7_writer.writemessage(hl7_message.create_ack())
-        await hl7_writer.drain()
-    transformed_message = transform_message(hl7_message)
-    await messageSender(transformed_message)
-```
 
 ---
 
@@ -70,16 +50,6 @@ async def messageReceiver(hl7_reader, hl7_writer):
 - La fonction `messageSender()` est responsable de la connexion au serveur cible via MLLP. Elle envoie le message HL7 transformé et attend un accusé de réception (ACK).
 - L'adresse du serveur cible, ainsi que le port de réception, sont lus à partir du fichier de configuration.
 
-**Exemple de code** :
-```python
-async def messageSender(message):
-    host = readConf()[0]
-    port = int(readConf()[2])
-    hl7_reader, hl7_writer = await asyncio.wait_for(open_hl7_connection(host, port, encoding='iso-8859/1'), timeout=10)
-    hl7_writer.writemessage(message)
-    await hl7_writer.drain()
-    hl7_ack = await asyncio.wait_for(hl7_reader.readmessage(), timeout=10)
-```
 ---
 
 ### 4. `hl7Transformer.py`
@@ -89,17 +59,6 @@ async def messageSender(message):
 **Fonctionnement** :
 - Le message HL7 reçu est passé à la fonction `transform_message()`, qui extrait chaque segment du message et applique des modifications spécifiques sur certains champs (ex. échange de l'émetteur et du récepteur dans le segment MSH).
 - La fonction retourne le message transformé sous forme de liste de segments.
-
-**Exemple de code** :
-```python
-def transform_message(message):
-    MSHField = [message.segment('MSH')(i) for i in range(len(message.segment('MSH')))]
-    MSHField[3], MSHField[4] = MSHField[5], MSHField[6]
-    MSH = 'MSH|^~\&'
-    for i in range(3, len(MSHField)):
-        MSH += '|' + str(MSHField[i])
-    return [MSH, MSA, PID, ORC, TQ1, OBR, SPM]
-```
 
 ---
 
@@ -111,14 +70,6 @@ def transform_message(message):
 - Le fichier `config.txt` contient les paramètres nécessaires pour configurer le serveur : l'adresse du serveur cible, le port d'entrée, le port de sortie et le mode de service.
 - Les fonctions `readConf()` et `writeConf()` permettent de lire et de modifier ces paramètres.
 
-**Exemple de code** :
-```python
-def readConf():
-    with open('config.txt', 'r') as fichier:
-        lignes = fichier.readlines()
-    # Extraire les valeurs et les retourner
-```
-
 ---
 
 ### 6. `router.py`
@@ -128,19 +79,6 @@ def readConf():
 **Fonctionnement** :
 - Le `Router` permet de gérer les vues de l'application en fonction de l'URL demandée. Il utilise la bibliothèque `Flet` pour construire des interfaces utilisateur dynamiques.
 - Lorsqu'une route est changée, la fonction `route_change()` met à jour le contenu de la page en fonction de la route.
-
-**Exemple de code** :
-```python
-class Router:
-    def __init__(self, page):
-        self.page = page
-        self.routes = {"/app": AppView(page)}
-        self.body = ft.Container(content=self.routes['/app'])
-
-    async def route_change(self, route):
-        self.body.content = self.routes[route.route]
-        await self.body.update_async()
-```
 
 ---
 
