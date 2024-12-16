@@ -11,10 +11,11 @@ L'application se compose de plusieurs modules interconnectés, chacun ayant une 
 L'application est structurée autour de plusieurs composants clés :
 
 1. **Server (serveur HL7)** : Reçoit des messages HL7 entrants via une connexion réseau, traite ces messages, puis les envoie après transformation.
-2. **Transformer** : Modifie les segments des messages HL7 en fonction de règles spécifiées (ex. échange de certains champs entre émetteur et récepteur).
-3. **Sender (expéditeur)** : Envoie les messages HL7 transformés vers un autre système HL7.
-4. **Configuration** : Gestion de la configuration du serveur, incluant l'adresse du serveur cible, les ports d'entrée/sortie, et le mode de service.
-5. **Routeur** : Permet de naviguer dans l'application avec un système de routes basé sur la bibliothèque `Flet`.
+2. **Receiver (receveur)** : Reçoit les messages HL7 provenant d'autre système HL7.
+3. **Transformer** : Modifie les segments des messages HL7 en fonction de règles spécifiées (ex. échange de certains champs entre émetteur et récepteur).
+4. **Sender (expéditeur)** : Envoie les messages HL7 transformés vers un autre système HL7.
+5. **Configuration** : Gestion de la configuration du serveur, incluant l'adresse du serveur cible, les ports d'entrée/sortie, et le mode de service.
+6. **Routeur** : Permet de naviguer dans l'application avec un système de routes basé sur la bibliothèque `Flet`.
 
 ---
 
