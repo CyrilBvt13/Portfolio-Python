@@ -1,0 +1,11 @@
+[SFTP]
+host = 10.39.181.4
+port = 2221
+username = ophtix
+password = ophtix
+remote_path = /HL7/CR/
+local_path = D:\FTP\c3470-ftp04\CHWAPI\OPHTIX\CR\
+
+[LOG]
+log_file = C:\Users\cbouvart\Documents\PERSO\Developpement\ITO-CopieSftpToLocal\logs_CopieFromSftp.log
+verbose = True
