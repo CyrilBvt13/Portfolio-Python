@@ -19,6 +19,37 @@ L'application est structurée autour de plusieurs composants clés :
 
 ---
 
+## Prérequis
+### Logiciels et Bibliothèques
+- Python 3.x
+- Bibliothèque `flet` pour l'interface utilisateur
+- Bibliothèque `hl7` et `hl7.mllp` pour la gestion des messages HL7
+
+Pour installer les bibliothèques, utilisez :
+```bash
+pip install flet, hl7
+```
+
+### Fichier de Configuration : `config.txt`
+Le fichier `config.txt` contient les paramètres nécessaires au fonctionnement du script. Voici un exemple :
+
+```plaintext
+target=127.0.0.1
+input_port=5994
+output_port=5995
+log_mode=1
+```
+
+#### Description des paramètres :
+| **Paramètre**    | **Description**                            |
+|------------------|--------------------------------------------|
+| `target`         | Adresse du serveur cible.                  |
+| `input_port`     | Port d'écoute.                             |
+| `output_port`    | Port d'émission.                           |
+| `log_mode`       | Active ou désactive les logs (1/0).        |
+
+---
+
 ## Composants
 
 ### 1. `hl7Server.py`
@@ -98,6 +129,14 @@ L'application est structurée autour de plusieurs composants clés :
 
 ---
 
-## Conclusion
+## Exécutable
+Un executable "stand-alone" permet de lancer le programme sans nécessité d'installer Python sur le serveur local. Le fichier `config.txt` doit se trouver dans le même répertoire que l'éxecutable pour que celui-ci fonctionne.
 
-L'application permet de recevoir, transformer et envoyer des messages HL7 tout en offrant une gestion flexible de la configuration via un fichier texte. Grâce à la modularité de son architecture, elle est facilement extensible pour intégrer de nouvelles règles de transformation ou de nouveaux segments HL7.
+Pour recompiler l'executable : 
+```bash
+ pyinstaller --onefile --noconsole .\main.py
+ ```
+---
+
+## Auteurs
+- **Auteur Principal** : Cyril Bouvart
