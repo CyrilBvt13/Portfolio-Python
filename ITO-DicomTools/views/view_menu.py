@@ -14,8 +14,18 @@ def create_menu(page, file_picker, save_file_picker):
     """
     # Bouton pour ouvrir un fichier DICOM à l'aide du FilePicker
     pick_file_button = ft.TextButton(
-        text="Ouvrir",
+        content=ft.Text(
+            "Ouvrir",
+            text_align="start",
+        ),
+        width=220,
         on_click=lambda _: file_picker.pick_files(dialog_title="Sélectionner un fichier DICOM"),
+        style=ft.ButtonStyle(
+            overlay_color=ft.colors.with_opacity(0.2, ft.colors.GREY_400),  # Couleur d'effet au survol
+            shape={
+                "hovered": ft.RoundedRectangleBorder(radius=5),  # Angles arrondis en mode survol
+            },
+        ),
     )
 
     # Bouton pour sauvegarder les modifications apportées au fichier DICOM

@@ -4,7 +4,7 @@ from pydicom.errors import InvalidDicomError
 from views.view_error import show_error
 
 
-def process_dicom_file(e, dicom_dataset, scrollable_container, filename_text, page, field_mapping):
+def process_dicom_file(e, dicom_dataset, scrollable_container, filename_button, page, field_mapping):
     """
     Traite le fichier DICOM sélectionné, met à jour l'interface utilisateur et initialise le mapping des champs.
 
@@ -34,7 +34,7 @@ def process_dicom_file(e, dicom_dataset, scrollable_container, filename_text, pa
         # Réinitialiser le conteneur et le mapping des champs
         scrollable_container.controls.clear()
         field_mapping.clear()
-        filename_text.value = ''
+        filename_button.visible = False
 
         # Fonction locale pour afficher les éléments du dataset
         def display_element(element, level=0, parent=None):
@@ -64,22 +64,23 @@ def process_dicom_file(e, dicom_dataset, scrollable_container, filename_text, pa
             scrollable_container.controls.extend(display_element(element))
 
         #Ajouter le nom du fichier au champs texte
-        filename_text.value = file_name
+        filename_button.text = file_name
+        filename_button.visible = True
         
         # Afficher les changements sur la page
         scrollable_container.update()
-        filename_text.update()
+        filename_button.update()
         
     except InvalidDicomError:
         # Gérer les erreurs DICOM invalides
         show_error(page, "Le fichier sélectionné n'est pas un fichier DICOM valide.")
         scrollable_container.controls.clear()
-        filename_text.value = ''
+        filename_button.visible = False
     except Exception as ex:
         # Gérer les autres erreurs
         show_error(page, f"Une erreur est survenue : {ex}")
         scrollable_container.controls.clear()
-        filename_text.value = ''
+        filename_button.visible = False
 
     # Retourner le dataset chargé et le nom du fichier
     return dicom_dataset, file_name

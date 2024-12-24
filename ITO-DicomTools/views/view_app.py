@@ -28,8 +28,16 @@ def AppView(page):
     #filename_text = ft.Text('', weight=ft.FontWeight.BOLD)
     
     # Conteneur pour afficher le nom du fichier chargé
-    filename_container, filename_text, close_icon = create_file_name()
+    filename_container, filename_button, close_icon = create_file_name()
     divider = ft.Divider(visible=False)
+    
+    #Fonction pour revenir sur le scrollable_container à partir du bouton du nom de fichier
+    def show_file(page):
+        viewer_container.content=scrollable_container #On réinitialise le contenu de viewer_container
+        viewer_container.update()
+    
+    #Liaison de la fonction show_file au bouton filename_button
+    filename_button.on_click = show_file
     
     #Fonction pour effacer le contenu de viewer_container + désactiver le bouton de sauvegarde et d'envoi TCP/IP
     def close_file(page):
@@ -42,8 +50,8 @@ def AppView(page):
         field_mapping.clear() #On vide field_mapping
         field_mapping.update()
         
-        filename_text.value = '' #On vide le nom du fichier chargé
-        filename_text.update()
+        filename_button.visible = False #On masque le nom du fichier chargé
+        filename_button.update()
         
         close_icon.visible = False #On masque l'icone pour fermer le fichier chargé
         close_icon.update()
@@ -79,7 +87,7 @@ def AppView(page):
             e,
             dicom_dataset,
             scrollable_container,
-            filename_text,
+            filename_button,
             page,
             field_mapping
         )
@@ -87,8 +95,8 @@ def AppView(page):
         # Active ou désactive le bouton de sauvegarde en fonction de l'état de dicom_dataset
         save_file_button.disabled = dicom_dataset is None
         tcp_send_button.disabled = dicom_dataset is None
-        close_icon.visible = filename_text != ''
-        divider.visible = filename_text != ''
+        close_icon.visible = filename_button.text != ''
+        divider.visible = filename_button.text != ''
         page.update()
 
     # Associer la fonction de gestion au FilePicker pour le chargement
@@ -113,11 +121,6 @@ def AppView(page):
         nonlocal dicom_dataset
         viewer_container.content = create_tcp_form(page, dicom_dataset)
         viewer_container.update()
-    
-    #fonction pour afficher la fenêtre d'envoi TCP/IP
-    #def tcp_send_view(page):
-    #    viewer_container.content=tcp_send_container
-    #    viewer_container.update()
         
     tcp_send_button.on_click = handle_tcp_form
     
@@ -128,7 +131,7 @@ def AppView(page):
                 #Devrait être remplacé par filename_container
                 ft.Row(
                     controls=[
-                        filename_text,
+                        filename_button,
                         ft.Container(
                             expand=True,
                         ),
