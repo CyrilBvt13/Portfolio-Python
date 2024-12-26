@@ -16,7 +16,7 @@ def create_tcp_form(page, dicom_dataset):
     ip_field = ft.TextField(label="Adresse IP", hint_text="127.0.0.1", value="127.0.0.1", bgcolor=ft.colors.WHITE, width=300)
     port_field = ft.TextField(label="Port", hint_text="14090", value="14090", bgcolor=ft.colors.WHITE, width=300)
     aet_field = ft.TextField(label="AET Émetteur", hint_text="AET", value="AET", bgcolor=ft.colors.WHITE, width=300)
-    aec_field = ft.TextField(label="AEC Récepteur", hint_text="AEC", value="AEC", bgcolor=ft.colors.WHITE, width=300)
+    aec_field = ft.TextField(label="AEC Récepteur", hint_text="AEC", value="OMSTORESCP", bgcolor=ft.colors.WHITE, width=300)
     send_button = ft.TextButton('Envoyer')
 
     def validate_fields(_):

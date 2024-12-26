@@ -141,7 +141,7 @@ def AppView(page):
                 divider,
             ],
         ),
-        bgcolor=ft.colors.GREY_100,
+        bgcolor=ft.colors.GREY_50,
         width=(page.width-250),
         padding=ft.padding.only(left=15, right=15, top = 15),
     )
@@ -149,7 +149,7 @@ def AppView(page):
     # Container avec hauteur et largeur adaptatives pour afficher le message DICOM/les interfaces TCP/IP
     viewer_container = ft.Container(
         content=scrollable_container,
-        bgcolor=ft.colors.GREY_100,  # Couleur de fond du menu
+        bgcolor=ft.colors.GREY_50,  # Couleur de fond du menu
         width=(page.width-250),  # Largeur fixe du menu latéral = taille de la page - la barre de navigation
         padding=15,  # Espacement interne
         alignment=ft.alignment.center,

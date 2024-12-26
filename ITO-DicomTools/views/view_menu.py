@@ -10,43 +10,81 @@ def create_menu(page, file_picker, save_file_picker):
         save_file_picker (ft.FilePicker) : Composant pour la sauvegarde des fichiers.
 
     Retour :
-        tuple : Un conteneur contenant les boutons d'action et le bouton de sauvegarde.
+        tuple : Un conteneur contenant les boutons d'action, le bouton de sauvegarde et le bouton d'envoi TCP/IP.
     """
     # Bouton pour ouvrir un fichier DICOM à l'aide du FilePicker
     pick_file_button = ft.TextButton(
         content=ft.Text(
             "Ouvrir",
             text_align="start",
+            width=195,
         ),
-        width=220,
         on_click=lambda _: file_picker.pick_files(dialog_title="Sélectionner un fichier DICOM"),
         style=ft.ButtonStyle(
             overlay_color=ft.colors.with_opacity(0.2, ft.colors.GREY_400),  # Couleur d'effet au survol
             shape={
                 "hovered": ft.RoundedRectangleBorder(radius=5),  # Angles arrondis en mode survol
+                "pressed": ft.RoundedRectangleBorder(radius=5),
+                "focused": ft.RoundedRectangleBorder(radius=5),
             },
         ),
     )
 
     # Bouton pour sauvegarder les modifications apportées au fichier DICOM
     save_file_button = ft.TextButton(
-        text="Sauvegarder",
+        content=ft.Text(
+            "Sauvegarder",
+            text_align="start",
+            width=195,
+        ),
         on_click=lambda _: save_file_picker.save_file(dialog_title="Enregistrer le fichier DICOM"),
-        disabled=True  # Désactivé par défaut
+        disabled=True,  # Désactivé par défaut
+        style=ft.ButtonStyle(
+            overlay_color=ft.colors.with_opacity(0.2, ft.colors.GREY_400),  # Couleur d'effet au survol
+            shape={
+                "hovered": ft.RoundedRectangleBorder(radius=5),  # Angles arrondis en mode survol
+                "pressed": ft.RoundedRectangleBorder(radius=5),
+                "focused": ft.RoundedRectangleBorder(radius=5),
+            },
+        ),
     )
     
     # Bouton pour ouvrir l'interface d'écoute TCP/IP
     tcp_listen_button = ft.TextButton(
-        text="Ecoute TCP/IP (non disponible)",
+        content=ft.Text(
+            "Ecoute TCP/IP (non dispo)",
+            text_align="start",
+            width=195,
+        ),
         #on_click=lambda _: afficher l'interface d'écoute TCP/IP,
-        disabled=True
+        disabled=True, # Désactivé par défaut
+        style=ft.ButtonStyle(
+            overlay_color=ft.colors.with_opacity(0.2, ft.colors.GREY_400),  # Couleur d'effet au survol
+            shape={
+                "hovered": ft.RoundedRectangleBorder(radius=5),  # Angles arrondis en mode survol
+                "pressed": ft.RoundedRectangleBorder(radius=5),
+                "focused": ft.RoundedRectangleBorder(radius=5),
+            },
+        ),
     )
     
     # Bouton pour ouvrir l'interface d'émission TCP/IP
     tcp_send_button = ft.TextButton(
-        text="Envoi TCP/IP",
+        content=ft.Text(
+            "Envoi TCP/IP",
+            text_align="start",
+            width=195,
+        ),
         #on_click=lambda _: afficher l'interface d'envoi TCP/IP,
-        disabled=True  # Désactivé par défaut
+        disabled=True,  # Désactivé par défaut
+        style=ft.ButtonStyle(
+            overlay_color=ft.colors.with_opacity(0.2, ft.colors.GREY_400),  # Couleur d'effet au survol
+            shape={
+                "hovered": ft.RoundedRectangleBorder(radius=5),  # Angles arrondis en mode survol
+                "pressed": ft.RoundedRectangleBorder(radius=5),
+                "focused": ft.RoundedRectangleBorder(radius=5),
+            },
+        ),
     )
     
     # Texte pour la version du programme
@@ -58,6 +96,9 @@ def create_menu(page, file_picker, save_file_picker):
     # Container avec hauteur adaptative pour le menu à gauche
     menu_container = ft.Container(
         content=ft.Column(controls=[
+            ft.Container(
+                height=2,
+                ),
             pick_file_button, 
             save_file_button,
             tcp_listen_button,
@@ -83,4 +124,4 @@ def create_menu(page, file_picker, save_file_picker):
     # Attacher l'événement de redimensionnement à la page
     page.on_resize = on_resize
 
-    return menu_container, save_file_button, tcp_send_button  # Retourner à la fois le conteneur et le bouton
+    return menu_container, save_file_button, tcp_send_button  # Retourner à la fois le conteneur et les boutons
