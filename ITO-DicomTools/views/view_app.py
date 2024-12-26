@@ -25,7 +25,6 @@ def AppView(page):
 
     # Conteneur défilable pour afficher les balises DICOM
     scrollable_container = create_file_explorer(page)
-    #filename_text = ft.Text('', weight=ft.FontWeight.BOLD)
     
     # Conteneur pour afficher le nom du fichier chargé
     filename_container, filename_button, close_icon = create_file_name()
@@ -83,6 +82,16 @@ def AppView(page):
         """
         nonlocal dicom_dataset  # Permet de modifier la variable `dicom_dataset` définie à l'extérieur
         nonlocal file_name # Permet de modifier la variable `file_name` définie à l'extérieur
+
+        viewer_container.content=scrollable_container #On réinitialise le contenu de viewer_container
+        viewer_container.update()
+        
+        scrollable_container.controls.clear() #On vide le contenu de scrollable_container
+        scrollable_container.update()
+        
+        field_mapping.clear() #On vide field_mapping
+        field_mapping.update()
+
         dicom_dataset, file_name = process_dicom_file(
             e,
             dicom_dataset,
@@ -170,15 +179,19 @@ def AppView(page):
             ),
         height=page.height,  # Hauteur du conteneur ajustée à la page 
         width=(page.width-250),  # Largeur fixe du menu latéral = taille de la page - la barre de navigation
-        margin=-10, # Espacement externe
+        #margin=-10, # Espacement externe
     )
 
     # Fonction pour ajuster la taille du container lorsque la fenêtre est redimensionnée
     def on_resize(e):
-        new_width = page.width - 250
+        
+        menu.height = page.height
+        
         app_container.height = page.height  # Ajuste la hauteur en fonction de la hauteur de la fenêtre
-        viewer_container.width = new_width  # Ajuste la largeur en fonction de la hauteur de la fenêtre
-        name_container.width = new_width # Ajuste la largeur en fonction de la hauteur de la fenêtre
+
+        name_container.width = (page.width-250) # Ajuste la largeur en fonction de la hauteur de la fenêtre
+        viewer_container.width = (page.width-250)  # Ajuste la largeur en fonction de la hauteur de la fenêtre
+        
         page.update()  # Met à jour la page pour appliquer le changement
 
     # Attacher l'événement de redimensionnement à la page
@@ -188,8 +201,10 @@ def AppView(page):
     content = ft.Row(
         controls=[
             menu,  # Menu latéral contenant les boutons d'action
-            app_container,
+            app_container, # view principale contenant l'affichage du fichier dicom, les formulaires, etc...
         ],
+        alignment=ft.MainAxisAlignment.CENTER,
+        spacing=0,
     )
 
     # Retourner le conteneur principal

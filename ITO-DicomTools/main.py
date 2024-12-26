@@ -17,10 +17,11 @@ def main(page: ft.Page):
     page.title = "ITO - Dicom Tools"  # Titre de la fenêtre
     page.vertical_alignment = ft.MainAxisAlignment.CENTER  # Alignement vertical du contenu
     page.theme_mode = ft.ThemeMode.LIGHT  # Thème clair
-    page.window_width = 1000  # Largeur fixe de la fenêtre
-    page.window_height = 600  # Hauteur fixe de la fenêtre
+    page.window.width = 1000  # Largeur fixe de la fenêtre
+    page.window.height = 600  # Hauteur fixe de la fenêtre
     #page.window_resizable = False  # Désactivation du redimensionnement de la fenêtre
     page.scroll = "adaptive"
+    page.padding = 0
 
     # Initialisation du routeur pour gérer la navigation
     router = Router(page)
@@ -34,7 +35,6 @@ def main(page: ft.Page):
             [
                 router.body,  # Contenu dynamique géré par le routeur
             ],
-            #alignment=ft.MainAxisAlignment.CENTER  # Alignement centré horizontalement
         )
     )
 

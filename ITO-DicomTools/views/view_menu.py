@@ -17,7 +17,7 @@ def create_menu(page, file_picker, save_file_picker):
         content=ft.Text(
             "Ouvrir",
             text_align="start",
-            width=195,
+            width=210,
         ),
         on_click=lambda _: file_picker.pick_files(dialog_title="Sélectionner un fichier DICOM"),
         style=ft.ButtonStyle(
@@ -35,7 +35,7 @@ def create_menu(page, file_picker, save_file_picker):
         content=ft.Text(
             "Sauvegarder",
             text_align="start",
-            width=195,
+            width=210,
         ),
         on_click=lambda _: save_file_picker.save_file(dialog_title="Enregistrer le fichier DICOM"),
         disabled=True,  # Désactivé par défaut
@@ -54,7 +54,7 @@ def create_menu(page, file_picker, save_file_picker):
         content=ft.Text(
             "Ecoute TCP/IP (non dispo)",
             text_align="start",
-            width=195,
+            width=210,
         ),
         #on_click=lambda _: afficher l'interface d'écoute TCP/IP,
         disabled=True, # Désactivé par défaut
@@ -73,7 +73,7 @@ def create_menu(page, file_picker, save_file_picker):
         content=ft.Text(
             "Envoi TCP/IP",
             text_align="start",
-            width=195,
+            width=210,
         ),
         #on_click=lambda _: afficher l'interface d'envoi TCP/IP,
         disabled=True,  # Désactivé par défaut
@@ -107,21 +107,13 @@ def create_menu(page, file_picker, save_file_picker):
                 expand=True,
             ),
             version_text
-            ]),  # Organisation verticale des boutons
+            ],
+        ),  # Organisation verticale des boutons
         bgcolor=ft.colors.WHITE,  # Couleur de fond du menu
         height=page.height,  # Hauteur du conteneur ajustée à la page
         width=250,  # Largeur fixe du menu latéral
         padding=10,  # Espacement interne
-        margin=-10,
         alignment=ft.alignment.top_left,  # Aligne les éléments en haut à gauche pour éviter tout débordement
     )
-    
-    # Fonction pour ajuster la taille du container lorsque la fenêtre est redimensionnée
-    def on_resize(e):
-        menu_container.height = page.height  # Ajuste la hauteur en fonction de la hauteur de la fenêtre
-        page.update()  # Met à jour la page pour appliquer le changement
-
-    # Attacher l'événement de redimensionnement à la page
-    page.on_resize = on_resize
 
     return menu_container, save_file_button, tcp_send_button  # Retourner à la fois le conteneur et les boutons
