@@ -118,5 +118,5 @@ Un executable "stand-alone" permet de lancer le programme sans nécessité d'ins
 
 Pour recompiler l'executable : 
 ```bash
- pyinstaller --onefile --noconsole .\main.py
+ flet build windows
  ```
