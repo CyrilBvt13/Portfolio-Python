@@ -16,18 +16,21 @@ def create_file_name():
     filename_button = ft.TextButton(
         text=ft.Text(
             '',  # Texte vide par défaut
-            weight=ft.FontWeight.BOLD  # Texte en gras
+            weight=ft.FontWeight.BOLD,  # Texte en gras
         ),
         style=ft.ButtonStyle(
             # Coloration du texte (optionnel, peut être ajoutée si nécessaire)
-            # color=ft.colors.BLACK,
+            color=ft.Colors.GREY_800,
             overlay_color={"hovered": None},  # Supprime l'effet de survol
         ),
         visible=False  # Le bouton est caché par défaut
     )
 
     # Bouton pour fermer ou masquer le conteneur (initialement invisible)
-    close_icon = ft.IconButton(ft.icons.CLOSE, visible=False)
+    close_icon = ft.IconButton(
+        ft.icons.CLOSE, 
+        icon_color=ft.Colors.GREY_800,
+        visible=False)
 
     # Conteneur principal sous forme de ligne contenant le bouton et l'icône
     filename_container = ft.Row(

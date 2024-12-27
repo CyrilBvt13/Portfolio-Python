@@ -22,6 +22,7 @@ def main(page: ft.Page):
     #page.window_resizable = False  # Désactivation du redimensionnement de la fenêtre
     page.scroll = "adaptive"
     page.padding = 0
+    page.bgcolor = ft.colors.WHITE
 
     # Initialisation du routeur pour gérer la navigation
     router = Router(page)

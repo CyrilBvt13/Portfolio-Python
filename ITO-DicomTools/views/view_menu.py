@@ -13,15 +13,29 @@ def create_menu(page, file_picker, save_file_picker):
         tuple : Un conteneur contenant les boutons d'action, le bouton de sauvegarde et le bouton d'envoi TCP/IP.
     """
     # Bouton pour ouvrir un fichier DICOM à l'aide du FilePicker
+    open_icon = ft.Icon(
+                    name=ft.Icons.FILE_OPEN,
+                    color=ft.Colors.GREY_800,
+                    size=20,
+                    )
+
+    open_text = ft.Text(
+                    "Ouvrir",
+                    color=ft.Colors.GREY_800,
+                    text_align="start",
+                    width=210,
+                )
+
     pick_file_button = ft.TextButton(
-        content=ft.Text(
-            "Ouvrir",
-            text_align="start",
-            width=210,
+        content=ft.Row(
+            controls=[
+                open_icon,
+                open_text,
+            ],
         ),
         on_click=lambda _: file_picker.pick_files(dialog_title="Sélectionner un fichier DICOM"),
         style=ft.ButtonStyle(
-            overlay_color=ft.colors.with_opacity(0.2, ft.colors.GREY_400),  # Couleur d'effet au survol
+            overlay_color=ft.colors.with_opacity(0.2, ft.colors.GREY_200),  # Couleur d'effet au survol
             shape={
                 "hovered": ft.RoundedRectangleBorder(radius=5),  # Angles arrondis en mode survol
                 "pressed": ft.RoundedRectangleBorder(radius=5),
@@ -31,16 +45,30 @@ def create_menu(page, file_picker, save_file_picker):
     )
 
     # Bouton pour sauvegarder les modifications apportées au fichier DICOM
+    save_icon = ft.Icon(
+                    name=ft.Icons.SAVE,
+                    size=20,
+                    color = ft.Colors.GREY_300
+                    )
+
+    save_text = ft.Text(
+                    "Sauvegarder",
+                    text_align="start",
+                    width=210,
+                    color = ft.Colors.GREY_300
+                )
+
     save_file_button = ft.TextButton(
-        content=ft.Text(
-            "Sauvegarder",
-            text_align="start",
-            width=210,
+        content=ft.Row(
+            controls=[
+                save_icon,
+                save_text,
+            ],
         ),
         on_click=lambda _: save_file_picker.save_file(dialog_title="Enregistrer le fichier DICOM"),
         disabled=True,  # Désactivé par défaut
         style=ft.ButtonStyle(
-            overlay_color=ft.colors.with_opacity(0.2, ft.colors.GREY_400),  # Couleur d'effet au survol
+            overlay_color=ft.colors.with_opacity(0.2, ft.colors.GREY_200),  # Couleur d'effet au survol
             shape={
                 "hovered": ft.RoundedRectangleBorder(radius=5),  # Angles arrondis en mode survol
                 "pressed": ft.RoundedRectangleBorder(radius=5),
@@ -48,18 +76,31 @@ def create_menu(page, file_picker, save_file_picker):
             },
         ),
     )
-    
+
     # Bouton pour ouvrir l'interface d'écoute TCP/IP
+
+        #--- Séparer l'icon et le text ici ---
+
     tcp_listen_button = ft.TextButton(
-        content=ft.Text(
-            "Ecoute TCP/IP (non dispo)",
-            text_align="start",
-            width=210,
+        content=ft.Row(
+            controls=[
+                ft.Icon(
+                    name=ft.Icons.LOGIN,
+                    color = ft.Colors.GREY_300,
+                    size=20,
+                    ),
+                ft.Text(
+                    "Ecoute TCP/IP",
+                    color = ft.Colors.GREY_300,
+                    text_align="start",
+                    width=210,
+                ),
+            ],
         ),
         #on_click=lambda _: afficher l'interface d'écoute TCP/IP,
         disabled=True, # Désactivé par défaut
         style=ft.ButtonStyle(
-            overlay_color=ft.colors.with_opacity(0.2, ft.colors.GREY_400),  # Couleur d'effet au survol
+            overlay_color=ft.colors.with_opacity(0.2, ft.colors.GREY_200),  # Couleur d'effet au survol
             shape={
                 "hovered": ft.RoundedRectangleBorder(radius=5),  # Angles arrondis en mode survol
                 "pressed": ft.RoundedRectangleBorder(radius=5),
@@ -67,18 +108,32 @@ def create_menu(page, file_picker, save_file_picker):
             },
         ),
     )
-    
+
     # Bouton pour ouvrir l'interface d'émission TCP/IP
+    send_icon = ft.Icon(
+                    name=ft.Icons.LOGOUT,
+                    size=20,
+                    color = ft.Colors.GREY_300
+                    )
+
+    send_text = ft.Text(
+                    "Envoi TCP/IP",
+                    text_align="start",
+                    width=210,
+                    color = ft.Colors.GREY_300
+                )
+
     tcp_send_button = ft.TextButton(
-        content=ft.Text(
-            "Envoi TCP/IP",
-            text_align="start",
-            width=210,
+        content=ft.Row(
+            controls=[
+                send_icon,
+                send_text,
+            ],
         ),
         #on_click=lambda _: afficher l'interface d'envoi TCP/IP,
         disabled=True,  # Désactivé par défaut
         style=ft.ButtonStyle(
-            overlay_color=ft.colors.with_opacity(0.2, ft.colors.GREY_400),  # Couleur d'effet au survol
+            overlay_color=ft.colors.with_opacity(0.2, ft.colors.GREY_200),  # Couleur d'effet au survol
             shape={
                 "hovered": ft.RoundedRectangleBorder(radius=5),  # Angles arrondis en mode survol
                 "pressed": ft.RoundedRectangleBorder(radius=5),
@@ -89,7 +144,7 @@ def create_menu(page, file_picker, save_file_picker):
     
     # Texte pour la version du programme
     version_text = ft.Text(
-        'V 0.1.0',
+        'V 0.1.1',
         size=10,
     )
 
@@ -116,4 +171,4 @@ def create_menu(page, file_picker, save_file_picker):
         alignment=ft.alignment.top_left,  # Aligne les éléments en haut à gauche pour éviter tout débordement
     )
 
-    return menu_container, save_file_button, tcp_send_button  # Retourner à la fois le conteneur et les boutons
+    return menu_container, save_icon, save_text, save_file_button, send_icon, send_text, tcp_send_button  # Retourner à la fois le conteneur et les boutons

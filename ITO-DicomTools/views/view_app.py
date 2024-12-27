@@ -58,9 +58,13 @@ def AppView(page):
         divider.visible = False #On masque le divider
         divider.update()
         
+        save_icon.color = ft.Colors.GREY_300
+        save_text.color = ft.Colors.GREY_300
         save_file_button.disabled = True #On désactive le bouton de sauvegarde
         save_file_button.update()
         
+        send_icon.color = ft.Colors.GREY_300
+        send_text.color = ft.Colors.GREY_300
         tcp_send_button.disabled = True #On désactive le bouton d'envoi TCP/IP
         tcp_send_button.update()
         
@@ -102,10 +106,17 @@ def AppView(page):
         )
 
         # Active ou désactive le bouton de sauvegarde en fonction de l'état de dicom_dataset
+        save_icon.color = ft.Colors.GREY_800
+        save_text.color = ft.Colors.GREY_800
         save_file_button.disabled = dicom_dataset is None
+
+        send_icon.color = ft.Colors.GREY_800
+        send_text.color = ft.Colors.GREY_800
         tcp_send_button.disabled = dicom_dataset is None
+
         close_icon.visible = filename_button.text != ''
         divider.visible = filename_button.text != ''
+
         page.update()
 
     # Associer la fonction de gestion au FilePicker pour le chargement
@@ -123,7 +134,7 @@ def AppView(page):
     page.overlay.extend([file_picker, save_file_picker])
     
     # Crée le menu latéral avec les boutons pour charger et sauvegarder un fichier
-    menu, save_file_button, tcp_send_button = create_menu(page, file_picker, save_file_picker)
+    menu, save_icon, save_text, save_file_button, send_icon, send_text, tcp_send_button = create_menu(page, file_picker, save_file_picker)
 
     # Crée le container pour afficher le formulaire d'envoi TCP/IP
     def handle_tcp_form(e):
@@ -150,7 +161,7 @@ def AppView(page):
                 divider,
             ],
         ),
-        bgcolor=ft.colors.GREY_50,
+        bgcolor=ft.colors.WHITE,
         width=(page.width-250),
         padding=ft.padding.only(left=15, right=15, top = 15),
     )
@@ -158,8 +169,8 @@ def AppView(page):
     # Container avec hauteur et largeur adaptatives pour afficher le message DICOM/les interfaces TCP/IP
     viewer_container = ft.Container(
         content=scrollable_container,
-        bgcolor=ft.colors.GREY_50,  # Couleur de fond du menu
-        width=(page.width-250),  # Largeur fixe du menu latéral = taille de la page - la barre de navigation
+        bgcolor=ft.colors.WHITE,  # Couleur de fond du menu
+        width=(page.width-250-16),  # Largeur fixe du menu latéral = taille de la page - la barre de navigation
         padding=15,  # Espacement interne
         alignment=ft.alignment.center,
     )
@@ -178,34 +189,41 @@ def AppView(page):
                 ],
             ),
         height=page.height,  # Hauteur du conteneur ajustée à la page 
-        width=(page.width-250),  # Largeur fixe du menu latéral = taille de la page - la barre de navigation
+        width=(page.width-250-16),  # Largeur fixe du menu latéral = taille de la page - la barre de navigation
         #margin=-10, # Espacement externe
     )
-
-    # Fonction pour ajuster la taille du container lorsque la fenêtre est redimensionnée
-    def on_resize(e):
-        
-        menu.height = page.height
-        
-        app_container.height = page.height  # Ajuste la hauteur en fonction de la hauteur de la fenêtre
-
-        name_container.width = (page.width-250) # Ajuste la largeur en fonction de la hauteur de la fenêtre
-        viewer_container.width = (page.width-250)  # Ajuste la largeur en fonction de la hauteur de la fenêtre
-        
-        page.update()  # Met à jour la page pour appliquer le changement
-
-    # Attacher l'événement de redimensionnement à la page
-    page.on_resize = on_resize
     
     # Conteneur principal structurant l'interface utilisateur
     content = ft.Row(
         controls=[
             menu,  # Menu latéral contenant les boutons d'action
+            ft.VerticalDivider(
+                leading_indent=20,
+                trailing_indent=20,
+                ),
             app_container, # view principale contenant l'affichage du fichier dicom, les formulaires, etc...
         ],
         alignment=ft.MainAxisAlignment.CENTER,
         spacing=0,
+        height=page.height,
     )
+
+    # Fonction pour ajuster la taille du container lorsque la fenêtre est redimensionnée
+    def on_resize(e):
+        
+        menu.height = page.height # Ajuste la hauteur en fonction de la hauteur de la fenêtre
+        
+        app_container.height = page.height  # Ajuste la hauteur en fonction de la hauteur de la fenêtre
+
+        name_container.width = (page.width-250-16) # Ajuste la largeur en fonction de la hauteur de la fenêtre
+        viewer_container.width = (page.width-250-16)  # Ajuste la largeur en fonction de la hauteur de la fenêtre
+        
+        content.height = page.height # Ajuste la hauteur en fonction de la hauteur de la fenêtre
+
+        page.update()  # Met à jour la page pour appliquer le changement
+
+    # Attacher l'événement de redimensionnement à la page
+    page.on_resize = on_resize
 
     # Retourner le conteneur principal
     return content
