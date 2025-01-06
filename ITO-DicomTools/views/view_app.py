@@ -1,3 +1,4 @@
+from types import NoneType
 import flet as ft
 from dicom_handler import process_dicom_file, save_dicom_file
 from views.view_menu import create_menu
@@ -105,17 +106,19 @@ def AppView(page):
             field_mapping
         )
 
-        # Active ou désactive le bouton de sauvegarde en fonction de l'état de dicom_dataset
-        save_icon.color = ft.Colors.GREY_800
-        save_text.color = ft.Colors.GREY_800
-        save_file_button.disabled = dicom_dataset is None
+        if(type(dicom_dataset)!=NoneType):
 
-        send_icon.color = ft.Colors.GREY_800
-        send_text.color = ft.Colors.GREY_800
-        tcp_send_button.disabled = dicom_dataset is None
+            # Active ou désactive le bouton de sauvegarde en fonction de l'état de dicom_dataset
+            save_icon.color = ft.Colors.GREY_800
+            save_text.color = ft.Colors.GREY_800
+            save_file_button.disabled = dicom_dataset is None
 
-        close_icon.visible = filename_button.text != ''
-        divider.visible = filename_button.text != ''
+            send_icon.color = ft.Colors.GREY_800
+            send_text.color = ft.Colors.GREY_800
+            tcp_send_button.disabled = dicom_dataset is None
+
+            close_icon.visible = filename_button.text != ''
+            divider.visible = filename_button.text != ''
 
         page.update()
 

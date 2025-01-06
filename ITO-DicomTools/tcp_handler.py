@@ -1,5 +1,7 @@
 import socket
 import pydicom
+from pynetdicom import AE
+from pynetdicom.sop_class import XRayRadiationDoseSRStorage
 
 def send_dicom_file(dicom_dataset, ip, port, aet, aec):
     """
@@ -15,27 +17,37 @@ def send_dicom_file(dicom_dataset, ip, port, aet, aec):
     Retour :
         str : Message de succès ou d'erreur.
     """
-    print('Sending file to',ip,port)
-    try:
-        # Convertir le dataset DICOM en données binaires
-        dicom_bytes = bytearray()
-        with pydicom.filebase.DicomBytesIO() as dicom_io:
-            dicom_dataset.save_as(dicom_io, write_like_original=True)
-            dicom_bytes = dicom_io.getvalue()
 
-        # Créer le socket TCP/IP
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-            sock.connect((ip, port))
+    # Charger le fichier DICOM
+    ds = dicom_dataset
 
-            # Créer un message DICOM basique avec l'en-tête
-            aet_encoded = aet.encode('utf-8').ljust(16, b' ')  # Aligné sur 16 octets
-            aec_encoded = aec.encode('utf-8').ljust(16, b' ')  # Aligné sur 16 octets
-            header = aet_encoded + aec_encoded
+    # Vérifier que le fichier est bien un objet Radiation Dose Structured Report
+    if ds.SOPClassUID != XRayRadiationDoseSRStorage:
+        return f"Le fichier n'est pas un objet DICOM valide pour IHE-REM (Radiation Dose Structured Report)."
 
-            # Envoyer l'en-tête suivi des données DICOM
-            sock.sendall(header + dicom_bytes)
+    # Créer une entité application (Application Entity - AE)
+    ae = AE(ae_title=aet)
 
-        return f"Fichier DICOM envoyé avec succès à {ip}:{port}."
+    # Ajouter le contexte pour Radiation Dose Structured Report Storage
+    ae.add_requested_context(XRayRadiationDoseSRStorage)
 
-    except Exception as e:
-        return f"Erreur lors de l'envoi : {e}"
+    # Établir une association avec le serveur
+    assoc = ae.associate(ip,port, ae_title=aec)
+
+    if assoc.is_established:
+        # Envoyer le fichier via le service C-STORE
+        status = assoc.send_c_store(ds)
+
+        # Vérifier le statut de la réponse
+        if status:
+            if status.Status == 0x0000:
+                return f"Fichier DICOM envoyé avec succès!"
+            else:
+                return f"Rejeté par le serveur DICOM."
+        else:
+            return f"Aucune réponse du serveur."
+
+        # Libérer l'association
+        assoc.release()
+    else:
+        return f"Impossible d'établir une connexion avec le serveur DICOM."
