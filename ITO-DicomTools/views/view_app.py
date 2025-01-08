@@ -5,6 +5,7 @@ from views.view_menu import create_menu
 from views.view_filename import create_file_name
 from views.view_file_explorer import create_file_explorer
 from views.view_sending import create_tcp_form
+from views.view_receiving import create_tcp_listening_form
 
 def AppView(page):
     """
@@ -27,6 +28,7 @@ def AppView(page):
     # Conteneur défilable pour afficher les balises DICOM
     scrollable_container = create_file_explorer(page)
     
+    # ------- Nom du fichier + close icon -----------------------------------------------------------------------------------------------------------------------
     # Conteneur pour afficher le nom du fichier chargé
     filename_container, filename_button, close_icon = create_file_name()
     divider = ft.Divider(visible=False)
@@ -41,6 +43,7 @@ def AppView(page):
     
     #Fonction pour effacer le contenu de viewer_container + désactiver le bouton de sauvegarde et d'envoi TCP/IP
     def close_file(page):
+        print(' --- DEBUG : CLOSE FILE ---')
         viewer_container.content=scrollable_container #On réinitialise le contenu de viewer_container
         viewer_container.update()
         
@@ -72,6 +75,7 @@ def AppView(page):
     #Liaison de la fonction close_file au bouton close_icon
     close_icon.on_click = close_file
 
+    # ------- Bouttons Ouvrir + Sauvegarder -----------------------------------------------------------------------------------------------------------------------
     # Initialisation des FilePickers pour le chargement et la sauvegarde des fichiers DICOM
     file_picker = ft.FilePicker()
     save_file_picker = ft.FilePicker()
@@ -136,8 +140,46 @@ def AppView(page):
     # Ajouter les FilePickers à l'interface (en arrière-plan, overlay)
     page.overlay.extend([file_picker, save_file_picker])
     
+    # ------- Menu latéral -----------------------------------------------------------------------------------------------------------------------
     # Crée le menu latéral avec les boutons pour charger et sauvegarder un fichier
-    menu, save_icon, save_text, save_file_button, send_icon, send_text, tcp_send_button = create_menu(page, file_picker, save_file_picker)
+    menu, save_icon, save_text, save_file_button, send_icon, send_text, tcp_send_button, tcp_receive_button = create_menu(page, file_picker, save_file_picker)
+
+    # ------- Bouttons Ecoute + Envoi TCP/IP -----------------------------------------------------------------------------------------------------------------------
+    # Crée le container pour afficher le formulaire d'écoute TCP/IP
+    def handle_tcp_listening_form(e):
+        nonlocal dicom_dataset
+        nonlocal file_name
+
+        def handle_dicom_received(dicom_dataset, filename):
+            
+            if(type(dicom_dataset)!=NoneType):
+
+                # Active ou désactive le bouton de sauvegarde en fonction de l'état de dicom_dataset
+                save_icon.color = ft.Colors.GREY_800
+                save_text.color = ft.Colors.GREY_800
+                save_file_button.disabled = dicom_dataset is None
+
+                send_icon.color = ft.Colors.GREY_800
+                send_text.color = ft.Colors.GREY_800
+                tcp_send_button.disabled = dicom_dataset is None
+
+                close_icon.visible = filename_button.text != ''
+                divider.visible = filename_button.text != ''
+
+            page.update()
+
+        viewer_container.content = create_tcp_listening_form(
+            dicom_dataset,
+            viewer_container,
+            scrollable_container,
+            filename_button,
+            page,
+            field_mapping,
+            on_receive_callback=handle_dicom_received
+        )
+        viewer_container.update()
+
+    tcp_receive_button.on_click = handle_tcp_listening_form
 
     # Crée le container pour afficher le formulaire d'envoi TCP/IP
     def handle_tcp_form(e):
@@ -147,6 +189,7 @@ def AppView(page):
         
     tcp_send_button.on_click = handle_tcp_form
     
+    # ------- Container avec nom + close icon -----------------------------------------------------------------------------------------------------------------------
     #Container avec largeur adaptative pour afficher le nom du fichier chargé
     name_container = ft.Container(
         content=ft.Column(
@@ -169,6 +212,7 @@ def AppView(page):
         padding=ft.padding.only(left=15, right=15, top = 15),
     )
     
+    # ------- Container d'affichage du contenu fichier -----------------------------------------------------------------------------------------------------------------------
     # Container avec hauteur et largeur adaptatives pour afficher le message DICOM/les interfaces TCP/IP
     viewer_container = ft.Container(
         content=scrollable_container,
@@ -178,7 +222,8 @@ def AppView(page):
         alignment=ft.alignment.center,
     )
     
-    #Container avec hauteur et largeur adaptatives pour afficher la view app de droite (nom du fichier + page)*
+    # ------- Container d'affichage du nom + contenu fichier -----------------------------------------------------------------------------------------------------------------------
+    #Container avec hauteur et largeur adaptatives pour afficher la view app de droite (nom du fichier + page)
     app_container = ft.Container(
         content=ft.Column(
                 controls=[
@@ -196,6 +241,7 @@ def AppView(page):
         #margin=-10, # Espacement externe
     )
     
+    # ------- Container d'affichage de l'application -----------------------------------------------------------------------------------------------------------------------
     # Conteneur principal structurant l'interface utilisateur
     content = ft.Row(
         controls=[

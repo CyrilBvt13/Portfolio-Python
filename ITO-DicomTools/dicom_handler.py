@@ -1,5 +1,9 @@
+from types import NoneType
 import flet as ft
 import pydicom
+from pydicom.dataset import Dataset, FileDataset
+from pydicom.sequence import Sequence
+import datetime
 from pydicom.errors import InvalidDicomError
 from views.view_error import show_error
 
@@ -87,21 +91,47 @@ def process_dicom_file(e, dicom_dataset, scrollable_container, filename_button, 
 
 def update_dicom_dataset_from_ui(dicom_dataset, field_mapping):
     """
-    Met à jour le dataset DICOM avec les valeurs modifiées dans l'interface utilisateur.
+    Met à jour ou crée un dataset DICOM à partir des valeurs modifiées dans l'interface utilisateur.
 
     Paramètres :
-        dicom_dataset : Dataset DICOM chargé.
+        dicom_dataset : Dataset DICOM chargé (ou None si vide).
         field_mapping : Dictionnaire associant les champs modifiables aux éléments du dataset.
 
     Retour :
-        dicom_dataset : Dataset DICOM mis à jour.
+        dicom_dataset : Dataset DICOM mis à jour ou créé.
     """
+
+    if dicom_dataset is None:
+        # Créer un nouveau dataset DICOM
+        dicom_dataset = FileDataset(
+            filename_or_obj=None,
+            dataset=Dataset(),
+            file_meta=Dataset(),
+            preamble=b"\0" * 128,
+        )
+        
+        # Ajouter des métadonnées de base
+        dicom_dataset.file_meta.MediaStorageSOPClassUID = "1.2.840.10008.5.1.4.1.1.88.67"  # Exemple: Radiation Dose SR
+        dicom_dataset.file_meta.MediaStorageSOPInstanceUID = f"1.2.826.0.1.3680043.2.1125.{datetime.datetime.now().strftime('%Y%m%d%H%M%S')}"
+        dicom_dataset.file_meta.TransferSyntaxUID = "1.2.840.10008.1.2"  # Implicit VR Little Endian
+        dicom_dataset.is_little_endian = True
+        dicom_dataset.is_implicit_VR = True
+
+    # Mettre à jour les éléments ou les ajouter au dataset
     for textfield, (element, parent) in field_mapping.items():
         new_value = textfield.value.strip()
+        tag = element.tag
+        vr = element.VR if hasattr(element, "VR") else "UN"  # Type d'élément (UN par défaut si inconnu)
+
         if parent:
-            parent[element.tag].value = new_value
+            # Si l'élément appartient à un parent (séquence), créer ou mettre à jour l'élément
+            if tag not in parent:
+                parent[tag] = Dataset()
+            parent[tag].value = new_value
         else:
-            element.value = new_value
+            # Ajouter ou mettre à jour directement dans le dataset principal
+            dicom_dataset.add_new(tag, vr, new_value)
+
     return dicom_dataset
 
 def save_dicom_file(e, dicom_dataset, field_mapping, page):

@@ -78,27 +78,28 @@ def create_menu(page, file_picker, save_file_picker):
     )
 
     # Bouton pour ouvrir l'interface d'écoute TCP/IP
+    tcp_listen_icon = ft.Icon(
+                    name=ft.Icons.LOGIN,
+                    color=ft.Colors.GREY_800,
+                    size=20,
+                    )
 
-        #--- Séparer l'icon et le text ici ---
+    tcp_listen_text = ft.Text(
+                    "Ecoute TCP/IP (Béta)",
+                    color=ft.Colors.GREY_800,
+                    text_align="start",
+                    width=210,
+                )
 
     tcp_listen_button = ft.TextButton(
         content=ft.Row(
             controls=[
-                ft.Icon(
-                    name=ft.Icons.LOGIN,
-                    color = ft.Colors.GREY_300,
-                    size=20,
-                    ),
-                ft.Text(
-                    "Ecoute TCP/IP",
-                    color = ft.Colors.GREY_300,
-                    text_align="start",
-                    width=210,
-                ),
+                tcp_listen_icon,
+                tcp_listen_text,
             ],
         ),
         #on_click=lambda _: afficher l'interface d'écoute TCP/IP,
-        disabled=True, # Désactivé par défaut
+        #disabled=True, # Désactivé par défaut
         style=ft.ButtonStyle(
             overlay_color=ft.colors.with_opacity(0.2, ft.colors.GREY_200),  # Couleur d'effet au survol
             shape={
@@ -171,4 +172,4 @@ def create_menu(page, file_picker, save_file_picker):
         alignment=ft.alignment.top_left,  # Aligne les éléments en haut à gauche pour éviter tout débordement
     )
 
-    return menu_container, save_icon, save_text, save_file_button, send_icon, send_text, tcp_send_button  # Retourner à la fois le conteneur et les boutons
+    return menu_container, save_icon, save_text, save_file_button, send_icon, send_text, tcp_send_button, tcp_listen_button  # Retourner à la fois le conteneur et les boutons
