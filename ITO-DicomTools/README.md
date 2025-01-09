@@ -112,6 +112,8 @@ L’application est structurée en plusieurs modules :
 
 ## Dépendances
 
+Un fichier requirements.txt contient toutes les dépendances Python nécessaires à l'execution de ce programme.
+
 - [flet](https://flet.dev/) : Pour construire l’interface utilisateur.  
 - [pydicom](https://pydicom.github.io/) : Pour lire et écrire des fichiers DICOM.  
 - [pynetdicom](https://pydicom.github.io/) : Pour recevoir et trasmettre des fichiers DICOM par TCP/IP.
