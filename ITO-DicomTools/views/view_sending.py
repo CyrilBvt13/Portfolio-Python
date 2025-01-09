@@ -28,7 +28,7 @@ def create_tcp_form(page, dicom_dataset):
     port_field.on_change = validate_fields
     aet_field.on_change = validate_fields
     aec_field.on_change = validate_fields
-    
+   
     def handle_send_button(_):
         """
         Gère l'action de clic sur le bouton d'envoi.

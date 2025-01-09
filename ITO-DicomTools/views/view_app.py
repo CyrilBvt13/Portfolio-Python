@@ -43,7 +43,6 @@ def AppView(page):
     
     #Fonction pour effacer le contenu de viewer_container + désactiver le bouton de sauvegarde et d'envoi TCP/IP
     def close_file(page):
-        print(' --- DEBUG : CLOSE FILE ---')
         viewer_container.content=scrollable_container #On réinitialise le contenu de viewer_container
         viewer_container.update()
         
@@ -150,8 +149,10 @@ def AppView(page):
         nonlocal dicom_dataset
         nonlocal file_name
 
-        def handle_dicom_received(dicom_dataset, filename):
-            
+        def handle_dicom_received(received_dataset, filename):
+            nonlocal dicom_dataset
+            dicom_dataset = received_dataset
+
             if(type(dicom_dataset)!=NoneType):
 
                 # Active ou désactive le bouton de sauvegarde en fonction de l'état de dicom_dataset
@@ -184,6 +185,9 @@ def AppView(page):
     # Crée le container pour afficher le formulaire d'envoi TCP/IP
     def handle_tcp_form(e):
         nonlocal dicom_dataset
+
+        print(' --- DEBUG : HandleTcpForm In ViewApp ',type(dicom_dataset), ' --- ')
+
         viewer_container.content = create_tcp_form(page, dicom_dataset)
         viewer_container.update()
         

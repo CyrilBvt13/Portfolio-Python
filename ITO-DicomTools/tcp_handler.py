@@ -1,12 +1,19 @@
 import socket
+import threading
 import pydicom
 from pynetdicom import AE, evt
-from pynetdicom.sop_class import XRayRadiationDoseSRStorage
+from pydicom import dcmread
+from pydicom.uid import UID, ExplicitVRLittleEndian, ImplicitVRLittleEndian, ExplicitVRBigEndian
+from pynetdicom.sop_class import (
+    XRayRadiationDoseSRStorage,
+    ModalityWorklistInformationFind
+    # Ajouter d'autres SOP Class UID selon vos besoins
+)
 from views.view_error import show_error
 
 def send_dicom_file(dicom_dataset, ip, port, aet, aec):
     """
-    Envoie un fichier DICOM via TCP/IP.
+    Envoie un fichier DICOM via TCP/IP, quel que soit son type.
 
     Paramètres :
         dicom_dataset (pydicom.dataset.FileDataset) : Dataset DICOM à envoyer.
@@ -22,18 +29,26 @@ def send_dicom_file(dicom_dataset, ip, port, aet, aec):
     # Charger le fichier DICOM
     ds = dicom_dataset
 
-    # Vérifier que le fichier est bien un objet Radiation Dose Structured Report
-    if ds.SOPClassUID != XRayRadiationDoseSRStorage:
-        return f"Le fichier n'est pas un objet DICOM valide pour IHE-REM (Radiation Dose Structured Report)."
+    # Vérifier que le dataset contient un SOP Class UID valide
+    if not hasattr(ds, "SOPClassUID"):
+        return "Le fichier DICOM ne contient pas de SOP Class UID valide."
+
+    sop_class_uid = UID(ds.SOPClassUID)
 
     # Créer une entité application (Application Entity - AE)
     ae = AE(ae_title=aet)
 
-    # Ajouter le contexte pour Radiation Dose Structured Report Storage
-    ae.add_requested_context(XRayRadiationDoseSRStorage)
+    # Ajouter les contextes pour les SOP Classes spécifiques
+    supported_sop_classes = [
+        XRayRadiationDoseSRStorage,
+        ModalityWorklistInformationFind
+        # Ajouter d'autres classes ici si nécessaire
+    ]
+    for sop_class in supported_sop_classes:
+        ae.add_requested_context(sop_class)
 
     # Établir une association avec le serveur
-    assoc = ae.associate(ip,port, ae_title=aec)
+    assoc = ae.associate(ip, port, ae_title=aec)
 
     if assoc.is_established:
         # Envoyer le fichier via le service C-STORE
@@ -42,16 +57,18 @@ def send_dicom_file(dicom_dataset, ip, port, aet, aec):
         # Vérifier le statut de la réponse
         if status:
             if status.Status == 0x0000:
-                return f"Fichier DICOM envoyé avec succès!"
+                message = f"Fichier DICOM (SOPClassUID: {sop_class_uid}) envoyé avec succès!"
             else:
-                return f"Rejeté par le serveur DICOM."
+                message = f"Le serveur DICOM a rejeté l'envoi. Code de statut : {status.Status}"
         else:
-            return f"Aucune réponse du serveur."
+            message = "Aucune réponse du serveur DICOM."
 
         # Libérer l'association
         assoc.release()
     else:
-        return f"Impossible d'établir une connexion avec le serveur DICOM."
+        message = f"Impossible d'établir une connexion avec le serveur DICOM (AET: {aec})."
+
+    return message
 
 def get_local_ip():
     """
@@ -76,6 +93,7 @@ def receive_dicom_file(page, port, aet):
     puis arrêter le serveur après la réception.
 
     Paramètres :
+        page : Page de l'application (interface utilisateur).
         port (int) : Port pour les connexions entrantes.
         aet (str) : AET (Application Entity Title) du serveur.
 
@@ -89,6 +107,9 @@ def receive_dicom_file(page, port, aet):
     # Variable pour stocker le dataset reçu
     dicom_dataset = None
 
+    # Événement pour signaler la réception du fichier
+    receive_event = threading.Event()
+
     # Gestionnaire pour l'événement C-STORE
     def handle_store(event):
         """Gestionnaire pour les fichiers reçus via C-STORE."""
@@ -100,15 +121,28 @@ def receive_dicom_file(page, port, aet):
             # Conserver les métadonnées d'origine
             ds.file_meta = event.file_meta
 
+            # Vérifier et définir les propriétés d'encodage
+            if 'TransferSyntaxUID' in ds.file_meta:
+                transfer_syntax = ds.file_meta.TransferSyntaxUID
+                if transfer_syntax == ExplicitVRLittleEndian:
+                    ds.is_little_endian = True
+                    ds.is_implicit_VR = False
+                elif transfer_syntax == ImplicitVRLittleEndian:
+                    ds.is_little_endian = True
+                    ds.is_implicit_VR = True
+                elif transfer_syntax == ExplicitVRBigEndian:
+                    ds.is_little_endian = False
+                    ds.is_implicit_VR = False
+                else:
+                    raise ValueError(f"Syntaxe de transfert non supportée : {transfer_syntax}")
+
             # Stocker le dataset en mémoire
             dicom_dataset = ds
             show_error(page, f"Fichier reçu avec succès!")
             print(f"Dataset reçu et stocké en mémoire. SOPInstanceUID: {ds.SOPInstanceUID}")
 
-            # Arrêter le serveur après réception
-            print("Arrêt du serveur DICOM après réception du fichier.")
-            server.shutdown()
-            print("Serveur arrêté avec succès.")
+            # Signaler que le fichier a été reçu
+            receive_event.set()
 
             # Retourner un statut "Succès" au client
             return 0x0000
@@ -120,19 +154,34 @@ def receive_dicom_file(page, port, aet):
     # Créer une Application Entity (AE) avec le titre spécifié
     ae = AE(ae_title=aet)
 
-    # Ajouter tous les SOP Classes de stockage supportés
-    #for element in sop_class:
-    #    ae.add_supported_context(element)
-    ae.add_supported_context(XRayRadiationDoseSRStorage)
+    # Ajouter les contextes pour les SOP Classes spécifiques
+    supported_sop_classes = [
+        XRayRadiationDoseSRStorage,
+        ModalityWorklistInformationFind
+        # Ajouter d'autres classes ici si nécessaire
+    ]
+    for sop_class in supported_sop_classes:
+        ae.add_supported_context(sop_class)
 
     # Associer le gestionnaire C-STORE
     handlers = [(evt.EVT_C_STORE, handle_store)]
 
-    # Lancer le serveur (bloquant)
+    # Lancer le serveur (non bloquant)
     print(f"Serveur DICOM en attente sur {ip}:{port} avec AET '{aet}'...")
     show_error(page, f"Serveur DICOM en attente sur {ip}:{port}")
-    while(dicom_dataset == None):
-        server = ae.start_server((ip, port), evt_handlers=handlers, block=False)
+    server = ae.start_server((ip, port), evt_handlers=handlers, block=False)
+
+    # Attendre la réception du fichier (avec timeout de 60 secondes)
+    if not receive_event.wait(timeout=60):
+        print("Aucun fichier reçu dans le délai imparti.")
+        show_error(page, "Aucun fichier reçu dans le délai imparti.")
+        server.shutdown()
+        return None
+
+    # Arrêter proprement le serveur après réception
+    print("Arrêt du serveur DICOM.")
+    server.shutdown()
+    print("Serveur arrêté avec succès.")
 
     # Retourner le dataset DICOM reçu
     return dicom_dataset
