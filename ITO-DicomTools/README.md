@@ -2,6 +2,8 @@
 
 ITO-DicomTools est une application Python conçue pour faciliter la manipulation et la transmission des fichiers DICOM via TCP/IP. Elle propose une interface conviviale permettant de charger, afficher et envoyer des fichiers DICOM, en faisant un outil précieux pour les professionnels de l'imagerie médicale et les développeurs travaillant avec les normes DICOM.
 
+![image](https://github.com/user-attachments/assets/727774aa-7e9b-4862-a232-e0fbafe133cc)
+
 ---
 
 ## **Table des Matières**
@@ -58,6 +60,9 @@ Dézippez l'archive DicomTools.zip contenant l'éxécutable dicomtools.exe. Cet 
 3. Cliquez sur **Recevoir** pour lancer le serveur DICOM.  
 4. Une fois le fichier reçu, il est affiché dans l'interface utilisateur.  
 
+![image](https://github.com/user-attachments/assets/63ced0fc-894c-4e69-a825-e9191825bf08)
+
+
 ### **Édition des métadonnées**
 1. Après ouverture/réception, utilisez l'interface pour visualiser les tags DICOM.  
 2. Modifiez les champs nécessaires dans les zones de texte associées.  
@@ -71,6 +76,8 @@ Dézippez l'archive DicomTools.zip contenant l'éxécutable dicomtools.exe. Cet 
    - **Port**  
    - **AET Récepteur**  
 2. Cliquez sur **Envoyer** pour transmettre le fichier au destinataire.  
+
+![image](https://github.com/user-attachments/assets/6043eb78-a170-4269-99a4-f19bee383407)
 
 ---
 
