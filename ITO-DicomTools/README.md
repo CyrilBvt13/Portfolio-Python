@@ -1,48 +1,45 @@
+# ITO-DicomTools
 
-# **Dicom Tools V0.1.1**
-
-### **Description**
-Cette application permet :
-- l'ouverture et la sauvegarde de fichier DICOM (.dcm)
-- la réception et la transmission de fichiers DICOM via TCP/IP
-- l'édition des fichiers ouverts et reçus
+ITO-DicomTools est une application Python conçue pour faciliter la manipulation et la transmission des fichiers DICOM via TCP/IP. Elle propose une interface conviviale permettant de charger, afficher et envoyer des fichiers DICOM, en faisant un outil précieux pour les professionnels de l'imagerie médicale et les développeurs travaillant avec les normes DICOM.
 
 ---
 
 ## **Table des Matières**
 
 1. [Contribution](#contribution)
-2. [Installation](#installation)  
-3. [Configuration](#configuration)  
-   - [Pré-requis](#pré-requis)
+2. [Fonctionnalités](#fonctionnalités)
+3. [Installation](#installation)  
 4. [Utilisation](#utilisation)  
    - [Ouverture de fichiers DICOM](#ouverture-de-fichiers-dicom)  
    - [Réception de fichiers DICOM](#réception-de-fichiers-dicom)  
    - [Édition des métadonnées](#édition-des-métadonnées)  
    - [Sauvegarde de fichiers DICOM](#sauvegarde-de-fichiers-dicom)  
    - [Transmission de fichiers DICOM](#transmission-de-fichiers-dicom)  
-5. [FAQ et dépannage](#faq-et-dépannage)  
-
+5. [FAQ et dépannage](#faq-et-dépannage)
+6. [Structure du code](#structure-du-code)
+7. [Dépendances](#dépendances)
+8. [Compilation](#compilation)
 
 ---
 
-## **Contribution**
+## Contribution
+- **Auteur Principal** : Cyril Bouvart
 
-Auteur principal : Cyril Bouvart
+---
+
+## Fonctionnalités
+
+- **Charger des fichiers DICOM** : Sélectionnez et chargez des fichiers DICOM depuis votre système local.
+- **Recevoir des fichiers DICOM** : Recevez des fichiers DICOM par TCP/IP.
+- **Afficher/modifier les métadonnées DICOM** : Affichez et modifiez les métadonnées détaillées des fichiers DICOM chargés.
+- **Sauvegarder des fichiers DICOM** : Sauvegardez les fichiers modifiés sur votre système local.
+- **Envoyer des fichiers DICOM** : Transmettez des fichiers DICOM à un serveur spécifié via TCP/IP.  
 
 ---
 
 ## **Installation**
 
-Dezippez l'archive DicomTools.zip. Celle ci contient un executable dicomtools.exe permettant de lancer l'application.
-
----
-
-## **Configuration**
-
-### **Pré-requis**
-
-Aucun prérequis nécessaires : l'application tourne en standalone.
+Dézippez l'archive DicomTools.zip contenant l'éxécutable dicomtools.exe. Cet éxécutable "stand-alone" permet de lancer le programme sans nécessité d'installer Python sur le serveur local.
 
 ---
 
@@ -85,6 +82,47 @@ Aucun prérequis nécessaires : l'application tourne en standalone.
 3. **Échec de l'association DICOM :**
    - Vérifiez l'AET, le port et l'IP du destinataire.
 
+---
 
+## Structure du code
+
+L’application est structurée en plusieurs modules :  
+
+- **main.py** : Point d’entrée de l’application. Configure l’interface utilisateur et gère les interactions.  
+
+- **dicom_handler.py** : Contient des fonctions utilitaires pour ouvrir et sauvegarder les fichiers DICOM.
+
+- **tcp_handler.py** : Contient des fonctions utilitaires pour recevoir et transmettre les fichiers DICOM par TCP/IP.
+
+- **view_app.py** : Contient les fonction permettant l'affichage de l'application, des fichiers DICOM et des fenêtre de chaques onglets.
+
+- **view_error.py** : Permet l'affichage des messages à destination de l'utilisateur (pop-ups).
+
+- **view_filename.py** : Permet l'affichage du nom du fichier chargé et du boutton de cloture du fichier.
+ 
+- **view_file_explorer.py** : Crée un conteneur défilable pour afficher les données DICOM.
+   
+- **view_menu.py** : Permet l'affichage du menu de gauche (ouvrir, recevoir, sauvegarder, transmettre).
+  
+- **view_receiving.py** : Crée un formulaire pour définir le port et l'AET pour la réception TCP/IP.
+
+- **view_sending.py** : Crée un formulaire pour définir l'IP, le port, l'AET et l'AEC pour l'envoi TCP/IP.
+  
+---
+
+## Dépendances
+
+- [flet](https://flet.dev/) : Pour construire l’interface utilisateur.  
+- [pydicom](https://pydicom.github.io/) : Pour lire et écrire des fichiers DICOM.  
+- [pynetdicom](https://pydicom.github.io/) : Pour recevoir et trasmettre des fichiers DICOM par TCP/IP.
+
+---
+
+## Compilation
+
+Pour recompiler l'éxécutable : 
+```bash
+ flet build windows
+ ```
 
 
