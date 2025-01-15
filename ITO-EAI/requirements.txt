@@ -1,1 +1,8 @@
-
+flask
+flet
+hl7
+lxml
+paramiko
+pywin32
+pyjwt
+pytest

@@ -1,0 +1,15 @@
+[
+    {
+        "id": "1",
+        "name": "Etablissement - Reception PSM ADT > HM",
+        {
+            "action": "copy",
+            "source": "OBR-2",
+            "target": "OBR-18"
+        },
+        {
+            "action": "set",
+            "field": "OBX-5",
+            "value": "Critical"
+        }
+]
