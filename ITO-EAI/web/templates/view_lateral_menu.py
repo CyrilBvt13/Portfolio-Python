@@ -1,3 +1,4 @@
+from turtle import left
 import flet as ft
 from web.utils.show_front_error import show_error
 
@@ -35,9 +36,45 @@ def create_lateral_menu(page):
             data = response.json()  # Obtenir le contenu JSON de la réponse
             groups = data.get("groups", [])  # Extraire la liste des groupes
     
+            # Fonction pour gérer la sélection des boutons
+            def select_button(e):
+                # Réinitialiser le style de tous les boutons
+                for button in group_buttons.controls:
+
+                    button.content.style=ft.TextStyle(
+                            color="grey700",    
+                            weight=ft.FontWeight.BOLD,
+                        ),
+
+                    button.style=ft.ButtonStyle(
+                        bgcolor="white",
+                        color="grey700",
+                        overlay_color=ft.Colors.with_opacity(0.2, "grey300"),  # Couleur d'effet au survol
+                        shape={
+                            "hovered": ft.RoundedRectangleBorder(radius=5),  # Angles arrondis en mode survol
+                            "pressed": ft.RoundedRectangleBorder(radius=5),
+                            "focused": ft.RoundedRectangleBorder(radius=5),
+                        },
+                    )
+        
+                # Appliquer le style au bouton sélectionné
+                e.control.content.style = ft.TextStyle(
+                    color="grey700",
+                    weight=ft.FontWeight.BOLD,
+                )
+
+                e.control.style = ft.ButtonStyle(
+                    bgcolor="grey200",
+                    shape=ft.RoundedRectangleBorder(radius=5),
+                )
+
+                # ---- AJOUTER L'AFFICHAGE DES FLUX DU GROUPE SELECTIONNE ----
+                print('Groupe sélectionné : ', e.control.content.value)
+
+                page.update()  # Mettre à jour la page
+
             # Parcourir les groupes et afficher chaque `group_name`
             for group in groups:
-                print(group.get("group_name"))
                 group_name = group.get("group_name")  # Accéder à la clé "group_name"
 
                 group_button = ft.TextButton(
@@ -45,20 +82,20 @@ def create_lateral_menu(page):
                         value=group_name,
                         style=ft.TextStyle(
                             weight=ft.FontWeight.BOLD,
+                            color="grey700",
                         ),
                         text_align="start",
-                        width=180,
-                        color="grey700",
+                        width=200,
                     ),
                     style=ft.ButtonStyle(
-                        overlay_color=ft.Colors.with_opacity(0.2, ft.Colors.GREY_300),  # Couleur d'effet au survol
+                        overlay_color=ft.Colors.with_opacity(0.2, "grey300"),  # Couleur d'effet au survol
                         shape={
                             "hovered": ft.RoundedRectangleBorder(radius=5),  # Angles arrondis en mode survol
                             "pressed": ft.RoundedRectangleBorder(radius=5),
                             "focused": ft.RoundedRectangleBorder(radius=5),
                         },
                     ),
-                    #on_click= , #On affiche les flux du groupe sélectionné + on modifie son style
+                    on_click=select_button, #On affiche les flux du groupe sélectionné + on modifie son style
                 )
         
                 # Ajouter le bouton à la liste
@@ -150,10 +187,12 @@ def create_lateral_menu(page):
                     add_button_control,  # Bouton d'ajout
                 ],
                 horizontal_alignment="center",
+                scroll="auto", # Rend la colonne scrollable
+                expand=True,
             ),
         bgcolor=ft.Colors.WHITE,  # Couleur de fond du menu
-        height=(page.height -60 -2), #Hauteur de la page - du menu entête - du divider
-        width=200,  #A rendre adaptatif
+        height=(page.height -8 -45 -50), #Hauteur de la page - du menu entête (8 + 45) - du divider 
+        width=250,  #A rendre adaptatif
     )
 
     return menu_container  # Retourner à la fois le conteneur et les boutons

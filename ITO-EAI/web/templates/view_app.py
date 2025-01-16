@@ -18,23 +18,6 @@ def AppView(page):
         ft.Container : Conteneur contenant les composants de l'application.
     """
 
-    '''# Exemple : Bouton qui déclenche une requête vers Flask
-    def on_test_click(e):
-        """
-        Tente de se connecter au backend Flask pour un test.
-        Capture les erreurs HTTP et affiche une boîte de dialogue en cas d'erreur.
-        """
-        try:
-            import requests
-            response = requests.get("http://127.0.0.1:5000/test")
-            if response.status_code == 200:
-                page.snack_bar = ft.SnackBar(ft.Text("Succès : " + response.json()["message"]))
-                page.snack_bar.open = True
-            else:
-                show_error(page, f"Erreur HTTP : {response.status_code} - {response.json()['error']}")
-        except Exception as e:
-            show_error(page, f"Impossible de se connecter au backend Flask : {str(e)}")'''
-
     # Menu entête
     menu, notification_button, disconnect_button = create_menu(page)
 
@@ -48,42 +31,53 @@ def AppView(page):
     lateral_menu = create_lateral_menu(page)
 
     # Corps de l'application (menu latéral + flux) avec divider draggable
-    def move_vertical_divider(e: ft.DragUpdateEvent):
-        if (e.delta_x > 0 and lateral_menu.width < 400) or (e.delta_x < 0 and lateral_menu.width > 200):
+    '''def move_vertical_divider(e: ft.DragUpdateEvent):
+        if (e.delta_x > 0 and lateral_menu.width < 400) or (e.delta_x < 0 and lateral_menu.width > 250):
             lateral_menu.width += e.delta_x
         lateral_menu.update()
 
     def show_draggable_cursor(e: ft.HoverEvent):
         e.control.mouse_cursor = ft.MouseCursor.RESIZE_LEFT_RIGHT
         e.control.update()
-
-    body =  ft.Container(
-        content=ft.Row(
-            controls=[
-                lateral_menu,
-                ft.GestureDetector(
-                    content=ft.VerticalDivider(),
+        
+     # Remplacer le vertical divider par :
+     ft.GestureDetector( # Le divider vertical draggable
+                    content=ft.VerticalDivider(
+                        trailing_indent=7,
+                    ),
                     drag_interval=10,
                     on_pan_update=move_vertical_divider,
                     on_hover=show_draggable_cursor,
                 ),
-                ft.Container(
+        '''
+
+    body =  ft.Container(
+        content=ft.Row(
+            controls=[
+                lateral_menu, # Le menu des groupes
+                ft.VerticalDivider(
+                        trailing_indent=7,
+                ),
+                ft.Container( # ----------------- La vue des flux ----------------------
                     #width=(page.width-lateral_menu.width-16), #1 = la largeur du VerticalDivider
                     alignment=ft.alignment.center,
                     expand=1,
-                    bgcolor=ft.Colors.GREY,
+                    bgcolor="grey300",
                 ),
             ],
             spacing=0,
         ),
         width=page.width,
-        height=(page.height - menu.height),
+        height=(page.height - 8 - menu.height - 32),
     )
 
     # Conteneur principal structurant l'interface utilisateur
     content = ft.Container(
         content=ft.Column(
                     controls=[
+                        ft.Container(
+                            height=8,
+                        ),
                         menu, #Le menu entête
                         horizontal_divider, #divider
                         body, #corps = menu latéral + vue des flux

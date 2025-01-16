@@ -16,6 +16,13 @@ def create_menu(page):
         tuple : Un conteneur contenant les boutons d'action et le boutons d'action
     """
 
+    base_title = ft.Text(
+            value='BASE TEST',
+            size=16,
+            color="grey700",
+            weight="bold",
+        )
+
     # Bouton pour ouvrir les notifications
     notification_button = ft.IconButton(
                     icon=ft.Icons.NOTIFICATIONS,
@@ -23,6 +30,14 @@ def create_menu(page):
                     icon_color="grey700",
                     #icon_color="red700",
                     tooltip="Notifications",
+                    #on_click=
+                )
+
+    # Bouton pour déconnecter l'utilisateur
+    settings_button = ft.IconButton(
+                    icon=ft.Icons.SETTINGS,
+                    icon_color="grey700",
+                    tooltip="Configuration",
                     #on_click=
                 )
 
@@ -39,17 +54,23 @@ def create_menu(page):
         content=ft.Row(
             controls=[
                 ft.Container(
+                    width=20,
+                ),
+                base_title,
+                ft.Container(
                     expand=True,
                 ),
                 notification_button, 
+                settings_button,
                 disconnect_button,
                 ft.Container(
                     width=20,
                 ),
             ],
+            vertical_alignment="center",
         ), 
         bgcolor=ft.Colors.WHITE,  # Couleur de fond du menu
-        height=60,
+        height=45,
         width=page.width,  
     )
 
