@@ -50,13 +50,12 @@ def create_lateral_menu(page):
                         bgcolor="white",
                         color="grey700",
                         overlay_color=ft.Colors.with_opacity(0.2, "grey300"),  # Couleur d'effet au survol
+                        padding=15,
                         shape={
-                            "hovered": ft.RoundedRectangleBorder(radius=5),  # Angles arrondis en mode survol
-                            "pressed": ft.RoundedRectangleBorder(radius=5),
-                            "focused": ft.RoundedRectangleBorder(radius=5),
+                            "hovered": ft.RoundedRectangleBorder(radius=10),  # Angles arrondis en mode survol
                         },
                     )
-        
+
                 # Appliquer le style au bouton sélectionné
                 e.control.content.style = ft.TextStyle(
                     color="grey700",
@@ -65,7 +64,8 @@ def create_lateral_menu(page):
 
                 e.control.style = ft.ButtonStyle(
                     bgcolor="grey200",
-                    shape=ft.RoundedRectangleBorder(radius=5),
+                    padding=15,
+                    shape=ft.RoundedRectangleBorder(radius=10),
                 )
 
                 # ---- AJOUTER L'AFFICHAGE DES FLUX DU GROUPE SELECTIONNE ----
@@ -89,15 +89,14 @@ def create_lateral_menu(page):
                     ),
                     style=ft.ButtonStyle(
                         overlay_color=ft.Colors.with_opacity(0.2, "grey300"),  # Couleur d'effet au survol
+                        padding=15,
                         shape={
-                            "hovered": ft.RoundedRectangleBorder(radius=5),  # Angles arrondis en mode survol
-                            "pressed": ft.RoundedRectangleBorder(radius=5),
-                            "focused": ft.RoundedRectangleBorder(radius=5),
+                            "hovered": ft.RoundedRectangleBorder(radius=10),  # Angles arrondis en mode survol
                         },
                     ),
                     on_click=select_button, #On affiche les flux du groupe sélectionné + on modifie son style
                 )
-        
+
                 # Ajouter le bouton à la liste
                 group_buttons.controls.append(group_button)
 
