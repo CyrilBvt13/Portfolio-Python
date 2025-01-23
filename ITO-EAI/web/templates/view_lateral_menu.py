@@ -1,197 +1,341 @@
-from turtle import left
 import flet as ft
-from web.utils.show_front_error import show_error
-
 import requests
-import json
+from web.utils.show_front_error import show_error  # Importer la gestion des erreurs
 
-def create_lateral_menu(page):
-    """
-    Crée un menu latéral contenant des boutons pour afficher les groupes de flux
+class LateralMenu:
+    def __init__(self, page):
+        """
+        Initialise le menu latéral pour gérer les groupes.
 
-    Paramètres :
-        page (ft.Page) : Page principale de l'application.
+        Paramètres :
+            page (ft.Page) : La page principale de l'application.
+        """
+        self.page = page
+        self.selected_group_id = None
+        self.selected_group_name = None
+        self.group_buttons = ft.Column()
+        self.on_group_selected_callback = None  # Callback à exécuter lors de la sélection d'un groupe
 
-    Propriétés :
-        largeur : adaptative
+    def set_on_group_selected_callback(self, callback):
+        """
+        Enregistre une fonction à appeler lorsque le groupe sélectionné change.
 
-    Retour :
-        tuple : Un conteneur contenant les boutons d'action
-    """
+        Paramètres :
+            callback (function) : La fonction à appeler.
+        """
+        self.on_group_selected_callback = callback
 
-    # Liste initiale de boutons (vide au départ)
-    group_buttons = ft.Column()      
+    def get_selected_group(self):
+        """
+        Retourne le groupe actuellement sélectionné.
 
-    # Fonction pour récupérer la liste des groupes en base + les afficher
-    def get_button():
-        # Récupération des groupes en base
-        BASE = "http://127.0.0.1:5000/" 
-        response = requests.get(BASE + "groups/", json={})
+        Retour :
+            tuple : (group_id, group_name)
+        """
+        return self.selected_group_id, self.selected_group_name
 
-        # Vérifier que la requête est réussie
-        if response.status_code == 200:
-            #On vide la liste des groupes
-            group_buttons.controls.clear()
+    def create_menu(self):
+        """
+        Crée le menu latéral contenant les groupes.
 
-            data = response.json()  # Obtenir le contenu JSON de la réponse
-            groups = data.get("groups", [])  # Extraire la liste des groupes
-    
-            # Fonction pour gérer la sélection des boutons
-            def select_button(e):
-                # Réinitialiser le style de tous les boutons
-                for button in group_buttons.controls:
+        Retour :
+            ft.Container : Le conteneur du menu latéral.
+        """
 
-                    button.content.style=ft.TextStyle(
-                            color="grey700",    
-                            weight=ft.FontWeight.BOLD,
+        def fetch_groups():
+            """
+            Récupère les groupes depuis l'API et met à jour le menu latéral.
+            """
+            BASE = "http://127.0.0.1:5000/"
+            response = requests.get(BASE + "groups/", json={})
+
+            if response.status_code == 200:
+                self.group_buttons.controls.clear()  # On vide la liste des boutons existants
+
+                data = response.json()
+                groups = data.get("groups", [])
+
+                # Parcourir les groupes et créer des boutons pour chacun
+                for group in groups:
+                    group_name = group.get("group_name", "")
+                    group_id = group.get("group_id", "")
+
+                    # Créer un bouton pour chaque groupe
+                    group_button = ft.TextButton(
+                        content=ft.Text(
+                            value=group_name,
+                            style=ft.TextStyle(
+                                weight=ft.FontWeight.BOLD,
+                                color="grey700",
+                            ),
+                            text_align="start",
+                            width=200,
                         ),
-
-                    button.style=ft.ButtonStyle(
-                        bgcolor="white",
-                        color="grey700",
-                        overlay_color=ft.Colors.with_opacity(0.2, "grey300"),  # Couleur d'effet au survol
-                        padding=15,
-                        shape={
-                            "hovered": ft.RoundedRectangleBorder(radius=10),  # Angles arrondis en mode survol
-                        },
+                        style=ft.ButtonStyle(
+                            overlay_color=ft.Colors.with_opacity(0.2, "grey300"),
+                            padding=15,
+                            shape={"hovered": ft.RoundedRectangleBorder(radius=10)},
+                        ),
+                        on_click=lambda e, group_id=group_id, group_name=group_name: select_button(e, group_id, group_name),
                     )
 
-                # Appliquer le style au bouton sélectionné
-                e.control.content.style = ft.TextStyle(
+                    self.group_buttons.controls.append(group_button)
+
+                self.page.update()
+            else:
+                message = f"Erreur {response.status_code} : {response.json()}"
+                show_error(self.page, message)
+
+        def select_button(e, group_id, group_name):
+            """
+            Gère la sélection d'un bouton de groupe.
+
+            Paramètres :
+                e : L'événement déclenché par le clic.
+                group_id (str) : L'identifiant du groupe sélectionné.
+                group_name (str) : Le nom du groupe sélectionné.
+            """
+            self.selected_group_id = group_id
+            self.selected_group_name = group_name
+
+            # Réinitialiser le style de tous les boutons
+            for button in self.group_buttons.controls:
+                button.content.style = ft.TextStyle(
                     color="grey700",
                     weight=ft.FontWeight.BOLD,
                 )
-
-                e.control.style = ft.ButtonStyle(
-                    bgcolor="grey200",
+                button.style = ft.ButtonStyle(
+                    bgcolor="white",
+                    color="grey700",
+                    overlay_color=ft.Colors.with_opacity(0.2, "grey300"),
                     padding=15,
-                    shape=ft.RoundedRectangleBorder(radius=10),
+                    shape={"hovered": ft.RoundedRectangleBorder(radius=10)},
                 )
 
-                # ---- AJOUTER L'AFFICHAGE DES FLUX DU GROUPE SELECTIONNE ----
-                print('Groupe sélectionné : ', e.control.content.value)
+            # Appliquer le style au bouton sélectionné
+            e.control.content.style = ft.TextStyle(
+                color="grey700",
+                weight=ft.FontWeight.BOLD,
+            )
+            e.control.style = ft.ButtonStyle(
+                bgcolor="grey200",
+                padding=15,
+                shape=ft.RoundedRectangleBorder(radius=10),
+            )
 
-                page.update()  # Mettre à jour la page
+            # Appeler le callback avec group_id si défini
+            if self.on_group_selected_callback:
+                self.on_group_selected_callback(group_id)
 
-            # Parcourir les groupes et afficher chaque `group_name`
-            for group in groups:
-                group_name = group.get("group_name")  # Accéder à la clé "group_name"
+            self.page.update()
 
-                group_button = ft.TextButton(
-                    content=ft.Text(
-                        value=group_name,
-                        style=ft.TextStyle(
-                            weight=ft.FontWeight.BOLD,
-                            color="grey700",
-                        ),
-                        text_align="start",
-                        width=200,
-                    ),
-                    style=ft.ButtonStyle(
-                        overlay_color=ft.Colors.with_opacity(0.2, "grey300"),  # Couleur d'effet au survol
-                        padding=15,
-                        shape={
-                            "hovered": ft.RoundedRectangleBorder(radius=10),  # Angles arrondis en mode survol
-                        },
-                    ),
-                    on_click=select_button, #On affiche les flux du groupe sélectionné + on modifie son style
-                )
+        # Fonction pour gérer la création d'un nouveau groupe
+        def add_button(self):
 
-                # Ajouter le bouton à la liste
-                group_buttons.controls.append(group_button)
+            #Fonction appelée lors de la validation
+            def handle_create(group_name):
+                # Fermeture de la popup
+                self.page.close(new_group_dialog)
+                new_group_dialog.open = False
 
-        else:
-            message = f"Erreur {response.status_code} :", response.json()
-            show_error(page, message)
+                # Ajout du nouveau groupe en base
+                BASE = "http://127.0.0.1:5000/" 
+                response = requests.put(BASE + "groups/", json={"group_name": group_name})
 
-        # Mettre à jour la page
-        page.update()
+                # Vérifier que la requête est réussie
+                if response.status_code == 200:
+                    # Mettre à jour la liste des groupes
+                    fetch_groups()
+                else:
+                    message = f"Erreur {response.status_code} :", response.json()
+                    show_error(self.page, message)
 
-    # Fonction pour gérer la création d'un nouveau groupe
-    def add_button(e):
-
-        #Fonction appelée lors de la validation
-        def handle_create(group_name):
-            # Fermeture de la popup
-            page.close(new_group_dialog)
-            new_group_dialog.open = False
-
-            # Ajout du nouveau groupe en base
-            BASE = "http://127.0.0.1:5000/" 
-            response = requests.put(BASE + "groups/", json={"group_name": group_name})
-
-            # Vérifier que la requête est réussie
-            if response.status_code == 200:
-                # Mettre à jour la liste des groupes
-                get_button()
-            else:
-                message = f"Erreur {response.status_code} :", response.json()
-                show_error(page, message)
-
-        # Affichage de la popup pour créer le nouveau groupe
-        nameField = ft.TextField(label="Nom du groupe")
+            # Affichage de la popup pour créer le nouveau groupe
+            nameField = ft.TextField(label="Nom du groupe")
         
-        def createGroup(e):
-            handle_create(nameField.value)
+            def createGroup(e):
+                handle_create(nameField.value)
 
-        new_group_dialog = ft.AlertDialog(
-            content=ft.Column(
-                controls=[
-                    ft.Container(
-                        height=10,
-                    ),
-                    nameField,
-                    ft.Container(
-                        height=10,
-                    ),
-                ],
-                height=50,
-                width=200,
-            ),
-            actions=[ft.TextButton("Valider", on_click=createGroup)],
-            actions_alignment=ft.MainAxisAlignment.END,
+            new_group_dialog = ft.AlertDialog(
+                content=ft.Column(
+                    controls=[
+                        ft.Container(
+                            height=10,
+                        ),
+                        nameField,
+                        ft.Container(
+                            height=10,
+                        ),
+                    ],
+                    height=50,
+                    width=200,
+                ),
+                actions=[ft.TextButton("Valider", on_click=createGroup)],
+                actions_alignment=ft.MainAxisAlignment.END,
+            )
+
+            # Ajout de la popup à la page
+            self.page.overlay.append(new_group_dialog)
+            new_group_dialog.open = True
+
+            self.page.update()   
+        
+        # Fonction pour modifier/supprimer un groupe
+
+
+
+
+        # Charger les groupes depuis l'API
+        fetch_groups()
+
+        # Bouton "+" pour ajouter des TextButton
+        add_button_control = ft.IconButton(
+            icon=ft.Icons.ADD,
+            icon_color="grey700",
+            on_click=add_button,
+            tooltip="Ajouter un nouveau groupe",
         )
 
-        # Ajout de la popup à la page
-        page.overlay.append(new_group_dialog)
-        new_group_dialog.open = True
+        # Container avec hauteur adaptative pour le menu à gauche
+        menu_container = ft.Container(
+            content=ft.Column(
+                controls=[
+                        ft.Container(
+                            height=10,
+                        ),
+                        self.group_buttons,  # Colonne contenant les boutons
+                        add_button_control,  # Bouton d'ajout
+                    ],
+                    horizontal_alignment="center",
+                    scroll="auto", # Rend la colonne scrollable
+                    expand=True,
+                ),
+            bgcolor=ft.Colors.WHITE,  # Couleur de fond du menu
+            height=(self.page.height -8 -45 -50), #Hauteur de la page - du menu entête (8 + 45) - du divider 
+            width=250,  #A rendre adaptatif
+        )
 
-        page.update()   
-        
-    # Fonction pour modifier/supprimer un groupe
+        return menu_container  # Retourner à la fois le conteneur et les boutons
 
+'''
 
+class LateralMenu:
+    def __init__(self, page):
+        """
+        Initialise le menu latéral pour gérer les groupes.
 
+        Paramètres :
+            page (ft.Page) : La page principale de l'application.
+        """
+        self.page = page
+        self.selected_group_id = None
+        self.selected_group_name = None
+        self.group_buttons = ft.Column()
+        self.on_group_selected_callback = None  # Callback à exécuter lors de la sélection d'un groupe
 
+    def set_on_group_selected_callback(self, callback):
+        """
+        Enregistre une fonction à appeler lorsque le groupe sélectionné change.
 
-    # Récupération des groupes en bases lors de l'ouverture de l'application
-    get_button()
+        Paramètres :
+            callback (function) : La fonction à appeler.
+        """
+        self.on_group_selected_callback = callback
 
-    # Bouton "+" pour ajouter des TextButton
-    add_button_control = ft.IconButton(
-        icon=ft.Icons.ADD,
-        icon_color="grey700",
-        on_click=add_button,
-        tooltip="Ajouter un nouveau groupe",
-    )
+    def get_selected_group(self):
+        """
+        Retourne le groupe actuellement sélectionné.
 
-    # Container avec hauteur adaptative pour le menu à gauche
-    menu_container = ft.Container(
-        content=ft.Column(
-            controls=[
-                    ft.Container(
-                        height=10,
-                    ),
-                    group_buttons,  # Colonne contenant les boutons
-                    add_button_control,  # Bouton d'ajout
-                ],
-                horizontal_alignment="center",
-                scroll="auto", # Rend la colonne scrollable
-                expand=True,
-            ),
-        bgcolor=ft.Colors.WHITE,  # Couleur de fond du menu
-        height=(page.height -8 -45 -50), #Hauteur de la page - du menu entête (8 + 45) - du divider 
-        width=250,  #A rendre adaptatif
-    )
+        Retour :
+            str : Nom du groupe sélectionné.
+        """
+        return self.selected_group_id, self.selected_group_name
 
-    return menu_container  # Retourner à la fois le conteneur et les boutons
+    def create_menu(self):
+        """
+        Crée le menu latéral contenant les groupes.
+
+        Retour :
+            ft.Container : Le conteneur du menu latéral.
+        """
+
+        def fetch_groups():
+            """
+            Récupère les groupes depuis l'API et met à jour le menu latéral.
+            """
+            BASE = "http://127.0.0.1:5000/"
+            response = requests.get(BASE + "groups/", json={})
+
+            if response.status_code == 200:
+                self.group_buttons.controls.clear()  # On vide la liste des boutons existants
+
+                data = response.json()
+                groups = data.get("groups", [])
+
+                # Parcourir les groupes et créer des boutons pour chacun
+                for group in groups:
+                    group_name = group.get("group_name", "")
+                    group_id = group.get("group_id", "")
+
+                    group_button = ft.TextButton(
+                        content=ft.Text(
+                            value=group_name,
+                            style=ft.TextStyle(
+                                weight=ft.FontWeight.BOLD,
+                                color="grey700",
+                            ),
+                            text_align="start",
+                            width=200,
+                        ),
+                        style=ft.ButtonStyle(
+                            overlay_color=ft.Colors.with_opacity(0.2, "grey300"),
+                            padding=15,
+                            shape={"hovered": ft.RoundedRectangleBorder(radius=10)},
+                        ),
+                        on_click=select_button,
+                    )
+
+                    self.group_buttons.controls.append(group_button)
+
+                self.page.update()
+            else:
+                message = f"Erreur {response.status_code} : {response.json()}"
+                show_error(self.page, message)
+
+        def select_button(e):
+            """
+            Gère la sélection d'un bouton de groupe.
+            """
+            self.selected_group = e.control.content.value
+
+            # Réinitialiser le style de tous les boutons
+            for button in self.group_buttons.controls:
+                button.content.style = ft.TextStyle(
+                    color="grey700",
+                    weight=ft.FontWeight.BOLD,
+                )
+                button.style = ft.ButtonStyle(
+                    bgcolor="white",
+                    color="grey700",
+                    overlay_color=ft.Colors.with_opacity(0.2, "grey300"),
+                    padding=15,
+                    shape={"hovered": ft.RoundedRectangleBorder(radius=10)},
+                )
+
+            # Appliquer le style au bouton sélectionné
+            e.control.content.style = ft.TextStyle(
+                color="grey700",
+                weight=ft.FontWeight.BOLD,
+            )
+            e.control.style = ft.ButtonStyle(
+                bgcolor="grey200",
+                padding=15,
+                shape=ft.RoundedRectangleBorder(radius=10),
+            )
+
+            # Appeler le callback si défini
+            if self.on_group_selected_callback:
+                self.on_group_selected_callback()
+
+            self.page.update()
+'''

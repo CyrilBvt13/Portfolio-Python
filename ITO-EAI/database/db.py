@@ -1,6 +1,10 @@
 from tinydb import TinyDB, Query
 
+# La database
 db = TinyDB('config.json')
-groups_table = db.table("group")
-
 query = Query()
+
+# Les tables
+groups_table = db.table("group")
+flows_table = db.table("flow")
+
