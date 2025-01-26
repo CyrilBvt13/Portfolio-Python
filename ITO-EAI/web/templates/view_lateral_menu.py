@@ -132,6 +132,11 @@ class LateralMenu:
         # Fonction pour gérer la création d'un nouveau groupe
         def add_button(self):
 
+            #Fonction pour fermer la popup
+            def handle_close(e):
+                self.page.close(new_group_dialog)
+                new_group_dialog.open = False
+
             #Fonction appelée lors de la validation
             def handle_create(group_name):
                 # Fermeture de la popup
@@ -151,7 +156,23 @@ class LateralMenu:
                     show_error(self.page, message)
 
             # Affichage de la popup pour créer le nouveau groupe
-            nameField = ft.TextField(label="Nom du groupe")
+            nameField = ft.TextField(
+                label="Nom du groupe",
+                text_size=14,
+                color="grey800",
+                bgcolor="white",
+                border_color="grey800",
+                focused_color="grey800",
+                focused_border_color="grey800",
+                selection_color="grey800",
+                cursor_color="grey800",
+                hint_style=ft.TextStyle(
+                    color="grey800",
+                ),
+                label_style=ft.TextStyle(
+                    color="grey800",
+                ),
+            )
         
             def createGroup(e):
                 handle_create(nameField.value)
@@ -159,19 +180,54 @@ class LateralMenu:
             new_group_dialog = ft.AlertDialog(
                 content=ft.Column(
                     controls=[
-                        ft.Container(
-                            height=10,
+                        ft.Row(
+                            controls=[
+                                ft.Text(
+                                    "Créer un nouveau groupe",
+                                    expand=True,
+                                ),
+                                ft.IconButton(
+                                    icon=ft.Icons.CLOSE,
+                                    icon_color="grey800",
+                                    on_click=handle_close,
+                                ),
+                            ],
                         ),
+                        ft.Divider(),
                         nameField,
                         ft.Container(
-                            height=10,
+                            height=20,
                         ),
                     ],
-                    height=50,
-                    width=200,
+                    width=300,
+                    height=140,
                 ),
-                actions=[ft.TextButton("Valider", on_click=createGroup)],
-                actions_alignment=ft.MainAxisAlignment.END,
+                actions=[
+                    ft.FilledButton(
+                        "Annuler", 
+                        height=40,
+                        width=145,
+                        on_click=handle_close,
+                        style=ft.ButtonStyle(
+                            color="grey800",
+                            bgcolor="grey300",
+                            shape=ft.RoundedRectangleBorder(radius=5),
+                        ),
+                    ),
+                    ft.OutlinedButton(
+                        "Valider", 
+                        height=40,
+                        width=145,
+                        on_click=createGroup,
+                        style=ft.ButtonStyle(
+                            color="grey800",
+                            bgcolor="grey100",
+                            shape=ft.RoundedRectangleBorder(radius=5),
+                        ),
+                    ),
+                ],
+                actions_alignment=ft.MainAxisAlignment.CENTER,
+                shape=ft.RoundedRectangleBorder(radius=10)
             )
 
             # Ajout de la popup à la page
@@ -216,126 +272,3 @@ class LateralMenu:
         )
 
         return menu_container  # Retourner à la fois le conteneur et les boutons
-
-'''
-
-class LateralMenu:
-    def __init__(self, page):
-        """
-        Initialise le menu latéral pour gérer les groupes.
-
-        Paramètres :
-            page (ft.Page) : La page principale de l'application.
-        """
-        self.page = page
-        self.selected_group_id = None
-        self.selected_group_name = None
-        self.group_buttons = ft.Column()
-        self.on_group_selected_callback = None  # Callback à exécuter lors de la sélection d'un groupe
-
-    def set_on_group_selected_callback(self, callback):
-        """
-        Enregistre une fonction à appeler lorsque le groupe sélectionné change.
-
-        Paramètres :
-            callback (function) : La fonction à appeler.
-        """
-        self.on_group_selected_callback = callback
-
-    def get_selected_group(self):
-        """
-        Retourne le groupe actuellement sélectionné.
-
-        Retour :
-            str : Nom du groupe sélectionné.
-        """
-        return self.selected_group_id, self.selected_group_name
-
-    def create_menu(self):
-        """
-        Crée le menu latéral contenant les groupes.
-
-        Retour :
-            ft.Container : Le conteneur du menu latéral.
-        """
-
-        def fetch_groups():
-            """
-            Récupère les groupes depuis l'API et met à jour le menu latéral.
-            """
-            BASE = "http://127.0.0.1:5000/"
-            response = requests.get(BASE + "groups/", json={})
-
-            if response.status_code == 200:
-                self.group_buttons.controls.clear()  # On vide la liste des boutons existants
-
-                data = response.json()
-                groups = data.get("groups", [])
-
-                # Parcourir les groupes et créer des boutons pour chacun
-                for group in groups:
-                    group_name = group.get("group_name", "")
-                    group_id = group.get("group_id", "")
-
-                    group_button = ft.TextButton(
-                        content=ft.Text(
-                            value=group_name,
-                            style=ft.TextStyle(
-                                weight=ft.FontWeight.BOLD,
-                                color="grey700",
-                            ),
-                            text_align="start",
-                            width=200,
-                        ),
-                        style=ft.ButtonStyle(
-                            overlay_color=ft.Colors.with_opacity(0.2, "grey300"),
-                            padding=15,
-                            shape={"hovered": ft.RoundedRectangleBorder(radius=10)},
-                        ),
-                        on_click=select_button,
-                    )
-
-                    self.group_buttons.controls.append(group_button)
-
-                self.page.update()
-            else:
-                message = f"Erreur {response.status_code} : {response.json()}"
-                show_error(self.page, message)
-
-        def select_button(e):
-            """
-            Gère la sélection d'un bouton de groupe.
-            """
-            self.selected_group = e.control.content.value
-
-            # Réinitialiser le style de tous les boutons
-            for button in self.group_buttons.controls:
-                button.content.style = ft.TextStyle(
-                    color="grey700",
-                    weight=ft.FontWeight.BOLD,
-                )
-                button.style = ft.ButtonStyle(
-                    bgcolor="white",
-                    color="grey700",
-                    overlay_color=ft.Colors.with_opacity(0.2, "grey300"),
-                    padding=15,
-                    shape={"hovered": ft.RoundedRectangleBorder(radius=10)},
-                )
-
-            # Appliquer le style au bouton sélectionné
-            e.control.content.style = ft.TextStyle(
-                color="grey700",
-                weight=ft.FontWeight.BOLD,
-            )
-            e.control.style = ft.ButtonStyle(
-                bgcolor="grey200",
-                padding=15,
-                shape=ft.RoundedRectangleBorder(radius=10),
-            )
-
-            # Appeler le callback si défini
-            if self.on_group_selected_callback:
-                self.on_group_selected_callback()
-
-            self.page.update()
-'''

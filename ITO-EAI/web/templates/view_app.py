@@ -43,9 +43,9 @@ def AppView(page):
             group_id (str) : L'identifiant du groupe sélectionné.
         """
         if group_id:
-            print(f"Groupe sélectionné : {group_id}")
-            selected_group = lat_menu.get_selected_group()
-            supervision.content = create_supervision(page, selected_group)
+            #print(f"Groupe sélectionné : {group_id}")
+            selected_group_id, selected_group_name = lat_menu.get_selected_group()
+            supervision.content = create_supervision(page, selected_group_id)
 
         else:
             supervision.content = ft.Text("Aucun groupe sélectionné", color="grey600")
