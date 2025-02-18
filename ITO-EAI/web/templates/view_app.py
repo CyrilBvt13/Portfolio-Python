@@ -1,7 +1,7 @@
 import flet as ft
 from web.templates.view_top_menu import create_menu
 from web.templates.view_lateral_menu import LateralMenu
-from web.templates.view_supervision import create_supervision
+from web.templates.view_supervision import Supervision
 from web.utils.show_front_error import show_error  # Gestion des erreurs
 
 def AppView(page):
@@ -43,9 +43,12 @@ def AppView(page):
             group_id (str) : L'identifiant du groupe sélectionné.
         """
         if group_id:
-            #print(f"Groupe sélectionné : {group_id}")
+            # On récupère l'id et le name du groupe sélectionné
             selected_group_id, selected_group_name = lat_menu.get_selected_group()
-            supervision.content = create_supervision(page, selected_group_id)
+
+            # On créée une instance de Supervision
+            sup = Supervision(page, selected_group_id, selected_group_name)
+            supervision.content = sup.create_supervision()
 
         else:
             supervision.content = ft.Text("Aucun groupe sélectionné", color="grey600")
