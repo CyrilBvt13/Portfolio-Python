@@ -1,66 +1,13 @@
 import flet as ft
+from view_flow import FlowContainer
 from web.utils.show_front_error import show_error
 
 import requests
 import json
-
-import flet as ft
-from web.utils.show_front_error import show_error
-
-import requests
-import json
-
-class FlowContainer(ft.Column):
-    def __init__(self, flow_id, flow_name, flow_is_active, update_page_callback):
-        self.flow_id = flow_id
-        self.flow_is_active = flow_is_active
-        self.update_page_callback = update_page_callback
-        
-        self.play_button = ft.IconButton(
-            icon=ft.Icons.PLAY_ARROW if not flow_is_active else ft.Icons.PAUSE,
-            icon_color="grey700",
-            on_click=self.toggle_active_status
-        )
-
-        super().__init__(
-            controls=[
-                ft.Divider(),
-                ft.Row(
-                    controls=[
-                        self.play_button,
-                        ft.Icon(name=ft.Icons.CHECK_CIRCLE, color="green"),
-                        ft.Text(flow_name),
-                        ft.Container(expand=1),
-                        ft.Icon(name=ft.Icons.EDIT, color="grey700"),
-                        ft.Icon(name=ft.Icons.DELETE, color="grey700"),
-                    ]
-                )
-            ]
-        )
-
-    def toggle_active_status(self, e):
-        # D'abord activation du service puis si c'est ok alors :
-
-        BASE = "http://127.0.0.1:5000/" 
-        response = requests.get(BASE + "flow/" + self.flow_id, json={})
-        current_status = response.json()[0].get('flow_is_active')
-       
-        new_status = not current_status
-
-        data = response.json()
-        data[0]['flow_is_active'] = not data[0]['flow_is_active']
-
-        response = requests.post(BASE + "flow/" + self.flow_id, json=data[0])
-        
-        self.flow_is_active = new_status
-        self.play_button.icon = ft.Icons.PLAY_ARROW if not new_status else ft.Icons.PAUSE
-        self.update_page_callback()
-
-        # + modification du statut du flux (coche verte)
 
 class Supervision:
     """
-        Récupère tous les flux de la table 'flow' pour un groupe sélectionné pour les afficher et permet la création de noveaux flux dans ce groupe
+        La classe qui récupère tous les flux de la table 'flow' pour un groupe sélectionné pour les afficher et permet la création de noveaux flux dans ce groupe
     
         Retourne :
             - Un container pour l'affichage des flux du groupe sélectionné
@@ -197,18 +144,18 @@ class Supervision:
                 new_flow_dialog.open = False
 
                 # Ajout du nouveau flux en base
-                BASE = "http://127.0.0.1:5000/" 
+                BASE = "http://127.0.0.1:5000/"
                 response = requests.put(BASE + "flow/", json={"flow_name": flow_name, "flow_group_id": selected_group_id})
 
                 # Vérifier que la requête est réussie
                 if response.status_code == 200:
-                    # Mettre à jour la liste des groupes
-                    fetch_flows()
+                    print(' --- DEBUG : MISE A JOUR DE L UI ---')
+                    fetch_flows()  # Rafraîchit immédiatement la liste des flux
                 else:
-                    message = f"Erreur {response.status_code} :", response.json()
+                    message = f"Erreur {response.status_code} : {response.json()}"
                     show_error(self.page, message)
 
-            # Affichage de la popup pour créer le nouveau groupe
+            # Affichage de la popup pour créer le nouveau flux
             nameField = ft.TextField(
                 label="Nom du flux",
                 text_size=14,
@@ -227,7 +174,7 @@ class Supervision:
                 ),
             )
 
-            # ... Ajouter les autres widgets pour la création d'un nouveau flux
+            # <--------------- A FAIRE : Ajouter les autres widgets pour la création d'un nouveau flux -------------->
         
             def createFlux(e):
                 handle_create(nameField.value)
@@ -351,41 +298,46 @@ class Supervision:
             ],
         )
         
-        def fetch_flows():    
+        def fetch_flows():
             """
-            Récupère les flux depuis l'API et met à jour le menu central
+            Récupère les flux depuis l'API et met à jour le menu central.
             """
             BASE = "http://127.0.0.1:5000/"
             response = requests.get(BASE + "flows/" + self.selected_group_id, json={})
 
             if response.status_code == 200:
-                #self.flow_buttons.controls.clear()  # On vide la liste des boutons existants
+                flow_list_view.controls.clear()  # On vide la liste des boutons existants
 
                 data = response.json()
                 flows = data.get("flows", [])
-      
-                # Parcourir les groupes et créer des boutons pour chacun
+
                 for flow in flows:
                     flow_name = flow.get("flow_name", "")
                     flow_id = flow.get("flow_id", "")
                     flow_is_active = flow.get("flow_is_active", False)
 
-                    flow_list_view.controls.append(FlowContainer(flow_id, flow_name, flow_is_active, self.page.update))
+                    flow_list_view.controls.append(
+                        FlowContainer(flow_id, flow_name, flow_is_active, self.page.update)
+                    )
 
             elif response.status_code == 404:
-                content.controls.append(
+                flow_list_view.controls.clear()
+                flow_list_view.controls.append(
                     ft.Container(
-                        content=ft.Text("Oups il semblerait qu'il n'y ait pas encore de flux dans ce groupe!", color="grey600"),
+                        content=ft.Text(
+                            "Oups, il semblerait qu'il n'y ait pas encore de flux dans ce groupe!",
+                            color="grey600",
+                        ),
                         alignment=ft.alignment.center,
                         expand=1,
-                    ),
+                    )
                 )
 
             else:
                 message = f"Erreur {response.status_code} : {response.json()}"
                 show_error(self.page, message)
 
-            self.page.update
+            self.page.update()
 
         fetch_flows()
 

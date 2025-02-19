@@ -26,7 +26,7 @@ class FlowsRoute(Resource):
         
         return {"flows": flows}, 200
 
-class FlowRoute(Resource):
+class NewFlowRoute(Resource):
 
     def put(self):
         """
@@ -44,6 +44,8 @@ class FlowRoute(Resource):
         args["flow_senders"] = []
         flows_table.insert(args)  # Insère le flux dans la table
         return {"flow_id": flow_id}, 200
+
+class FlowRoute(Resource):
 
     def get(self, flow_id):
         """
