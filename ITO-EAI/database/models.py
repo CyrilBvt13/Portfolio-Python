@@ -23,10 +23,11 @@ class Flow:
     flow_args = reqparse.RequestParser()
     flow_args.add_argument("flow_id", type=str)
     flow_args.add_argument("flow_group_id", type=str, help="group id is missing", required=True)
-    flow_args.add_argument("flow_is_active", type=bool, required=True)
-    flow_args.add_argument("flow_receivers", type=list, location='json', help="flow receivers are missing", required=True)
-    flow_args.add_argument("flow_transformers", type=list, location='json', help="flow transformers are missing", required=True)
-    flow_args.add_argument("flow_senders", type=list, location='json', help="flow senders are missing", required=True)
+    flow_args.add_argument("flow_name", type=str, help="flow name is missing", required=True)
+    flow_args.add_argument("flow_is_active", type=bool)
+    flow_args.add_argument("flow_receivers", type=list, location='json', help="flow receivers are missing")
+    flow_args.add_argument("flow_transformers", type=list, location='json', help="flow transformers are missing")
+    flow_args.add_argument("flow_senders", type=list, location='json', help="flow senders are missing")
 
 class FlowReceiver:
     receiver_args = reqparse.RequestParser()

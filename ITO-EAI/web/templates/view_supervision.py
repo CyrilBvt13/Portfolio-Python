@@ -1,9 +1,12 @@
 import flet as ft
-from view_flow import FlowContainer
+from web.templates.view_flow import FlowContainer
 from web.utils.show_front_error import show_error
 
 import requests
 import json
+
+import subprocess
+import os
 
 class Supervision:
     """
@@ -32,12 +35,15 @@ class Supervision:
         #self.on_flow_selected_callback = None  # Callback à exécuter lors de la sélection d'un groupe    
     
     def modify_group(e, self):
+        """
+        Affiche une boîte de dialogue permettant de modifier le nom du groupe.
+        """
         def handle_close(e):
             self.page.close(modify_group_dialog)
             modify_group_dialog.open = False
 
-        #Fonction appelée lors de la validation
         def handle_modify(group_name):
+            # Logique pour modifier le groupe
             pass
 
         # Affichage de la popup pour créer le nouveau groupe
@@ -63,28 +69,18 @@ class Supervision:
             # Modifier le nom du groupe à partir d'une pop-up
             handle_modify(nameField.value)
 
-        #Pop-up pour modifier le groupe
         modify_group_dialog = ft.AlertDialog(
                 content=ft.Column(
                     controls=[
                         ft.Row(
                             controls=[
-                                ft.Text(
-                                    "Modifier le groupe",
-                                    expand=True,
-                                ),
-                                ft.IconButton(
-                                    icon=ft.Icons.CLOSE,
-                                    icon_color="grey800",
-                                    on_click=handle_close,
-                                ),
+                                ft.Text("Modifier le groupe", expand=True),
+                                ft.IconButton(icon=ft.Icons.CLOSE, icon_color="grey800", on_click=handle_close),
                             ],
                         ),
                         ft.Divider(),
                         nameField,
-                        ft.Container(
-                            height=20,
-                        ),
+                        ft.Container(height=20),
                     ],
                     width=300,
                     height=140,
@@ -123,23 +119,26 @@ class Supervision:
         self.page.update()
 
     def suppress_group(self):
-        # Pop-up 'êtes vous sur?' puis retour à 'sélectionnez un groupe'
+        """
+        Affiche une boîte de dialogue permettant la suppression du groupe.
+        """
         pass
 
     def create_supervision(self):
+        """
+        Crée l'interface utilisateur pour afficher les flux et gérer leur création.
+        """
         selected_group_id = self.selected_group_id
-
-        # Fonction pour gérer la création d'un nouveau flux
+        
         def add_flux(self):
+        # Fonction pour gérer la création d'un nouveau flux
 
-            #Fonction pour fermer la popup
             def handle_close(e):
                 self.page.close(new_flow_dialog)
                 new_flow_dialog.open = False
-
-            #Fonction appelée lors de la validation
+            
             def handle_create(flow_name):
-                # Fermeture de la popup
+            #Fonction appelée lors de la validation
                 self.page.close(new_flow_dialog)
                 new_flow_dialog.open = False
 
@@ -147,10 +146,16 @@ class Supervision:
                 BASE = "http://127.0.0.1:5000/"
                 response = requests.put(BASE + "flow/", json={"flow_name": flow_name, "flow_group_id": selected_group_id})
 
-                # Vérifier que la requête est réussie
                 if response.status_code == 200:
-                    print(' --- DEBUG : MISE A JOUR DE L UI ---')
-                    fetch_flows()  # Rafraîchit immédiatement la liste des flux
+                    flow_id = response.json().get('flow_id')
+                    try:
+                        # Création du service Windows
+                        #subprocess.run(["python", "services/service_manager.py", "install", str(flow_id)])
+                        pass
+                    except:
+                        print('une erreur est survenue lors de la création du service')
+
+                    fetch_flows()
                 else:
                     message = f"Erreur {response.status_code} : {response.json()}"
                     show_error(self.page, message)
@@ -184,22 +189,13 @@ class Supervision:
                     controls=[
                         ft.Row(
                             controls=[
-                                ft.Text(
-                                    "Créer un nouveau flux",
-                                    expand=True,
-                                ),
-                                ft.IconButton(
-                                    icon=ft.Icons.CLOSE,
-                                    icon_color="grey800",
-                                    on_click=handle_close,
-                                ),
+                                ft.Text("Créer un nouveau flux", expand=True),
+                                ft.IconButton(icon=ft.Icons.CLOSE, icon_color="grey800", on_click=handle_close),
                             ],
                         ),
                         ft.Divider(),
                         nameField,
-                        ft.Container(
-                            height=20,
-                        ),
+                        ft.Container(height=20),
                     ],
                     width=300,
                     height=140,
@@ -210,22 +206,14 @@ class Supervision:
                         height=40,
                         width=145,
                         on_click=handle_close,
-                        style=ft.ButtonStyle(
-                            color="grey800",
-                            bgcolor="grey300",
-                            shape=ft.RoundedRectangleBorder(radius=5),
-                        ),
+                        style=ft.ButtonStyle(color="grey800", bgcolor="grey300", shape=ft.RoundedRectangleBorder(radius=5)),
                     ),
                     ft.OutlinedButton(
                         "Valider", 
                         height=40,
                         width=145,
                         on_click=createFlux,
-                        style=ft.ButtonStyle(
-                            color="grey800",
-                            bgcolor="grey100",
-                            shape=ft.RoundedRectangleBorder(radius=5),
-                        ),
+                        style=ft.ButtonStyle(color="grey800", bgcolor="grey100", shape=ft.RoundedRectangleBorder(radius=5)),
                     ),
                 ],
                 actions_alignment=ft.MainAxisAlignment.CENTER,
@@ -241,13 +229,7 @@ class Supervision:
         # Layout de la page
         flow_list_view = ft.ListView(expand=True, spacing=10)
 
-        scrollable_container = ft.Container(
-            content=flow_list_view,
-            expand=True,
-            border_radius=10,
-            padding=10,
-            bgcolor="white",
-        )
+        scrollable_container = ft.Container(content=flow_list_view, expand=True, border_radius=10, padding=10, bgcolor="white")
 
         content = ft.Column(
             controls=[
@@ -340,7 +322,5 @@ class Supervision:
             self.page.update()
 
         fetch_flows()
-
         self.flows_panel.content=content
-
         return self.flows_panel

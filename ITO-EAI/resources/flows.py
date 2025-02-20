@@ -5,6 +5,8 @@ from database.models import Flow
 from database.db import db, query, flows_table
 
 import uuid
+import subprocess
+import os
 
 class FlowsRoute(Resource):
 
@@ -43,6 +45,10 @@ class NewFlowRoute(Resource):
         args["flow_transformers"] = []
         args["flow_senders"] = []
         flows_table.insert(args)  # Insère le flux dans la table
+
+        # Création du service Windows
+        #subprocess.run(["python", "service_manager.py", "install", str(flow_id)])
+
         return {"flow_id": flow_id}, 200
 
 class FlowRoute(Resource):
