@@ -299,7 +299,7 @@ class Supervision:
                     flow_is_active = flow.get("flow_is_active", False)
 
                     flow_list_view.controls.append(
-                        FlowContainer(flow_id, flow_name, flow_is_active, self.page.update)
+                        FlowContainer(flow_id, flow_name, flow_is_active, self.page.update, fetch_flows)
                     )
 
             elif response.status_code == 404:

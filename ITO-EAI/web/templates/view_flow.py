@@ -3,6 +3,8 @@ import requests
 import json
 from utils.hl7.hl7_flow import start_flow, stop_flow  # Import des fonctions de gestion des flux
 
+BASE = "http://127.0.0.1:5000/" 
+
 class FlowContainer(ft.Column):
     """
         Classe pour la gestion/l'affichage des flux dans la Supervision
@@ -13,7 +15,7 @@ class FlowContainer(ft.Column):
         Retourne :
             - Un container pour l'affichage du flux
     """
-    def __init__(self, flow_id, flow_name, flow_is_active, update_page_callback):
+    def __init__(self, flow_id, flow_name, flow_is_active, update_page_callback, fetch_flows_callback):
         """
         Initialise l'affichage de la ligne du flux 
 
@@ -26,7 +28,9 @@ class FlowContainer(ft.Column):
         self.flow_id = flow_id
         self.flow_is_active = flow_is_active
         self.update_page_callback = update_page_callback
+        self.fetch_flows_callback = fetch_flows_callback
         
+        # Bouton démarrer/arrêter le flux
         self.play_button = ft.IconButton(
             icon=ft.Icons.PLAY_ARROW if not flow_is_active else ft.Icons.PAUSE,
             icon_color="grey700",
@@ -35,8 +39,15 @@ class FlowContainer(ft.Column):
 
         # Icône de statut (rouge = inactif, vert = actif)
         self.status_icon = ft.Icon(
-            name=ft.Icons.CIRCLE,
+            name=ft.Icons.CHECK_CIRCLE  if flow_is_active else ft.Icons.CANCEL,
             color="red" if not flow_is_active else "green"
+        )
+
+        # Bouton supprimer le flux
+        self.delete_button = ft.IconButton(
+            icon=ft.Icons.DELETE,
+            icon_color="grey700",
+            on_click=self.delete_flux
         )
 
         super().__init__(
@@ -49,7 +60,7 @@ class FlowContainer(ft.Column):
                         ft.Text(flow_name),
                         ft.Container(expand=1),
                         ft.Icon(name=ft.Icons.EDIT, color="grey700"),
-                        ft.Icon(name=ft.Icons.DELETE, color="grey700"),
+                        self.delete_button,
                     ]
                 )
             ]
@@ -57,7 +68,6 @@ class FlowContainer(ft.Column):
 
     def toggle_active_status(self, e):
         """Démarre ou arrête un flux et met à jour l'UI."""
-        BASE = "http://127.0.0.1:5000/" 
         response = requests.get(BASE + "flow/" + self.flow_id, json={})
         current_status = response.json()[0].get('flow_is_active')
        
@@ -69,9 +79,9 @@ class FlowContainer(ft.Column):
         response = requests.post(BASE + "flow/" + self.flow_id, json=data[0])
 
         if new_status:
-            start_flow(self.flow_id, 6000, '127.0.0.1', 6001)  # Démarrer le flux si activé
+            start_flow(self.flow_id, 6000, '127.0.0.1', 6001)  # + Récupèrer les infos en bd
         else:
-            stop_flow(self.flow_id)   # Arrêter le flux si désactivé
+            stop_flow(self.flow_id)   
 
         # Mise à jour de l'UI
         self.flow_is_active = new_status
@@ -81,8 +91,9 @@ class FlowContainer(ft.Column):
 
     def update_status(self):
         """Met à jour l'icône du statut en fonction de l'état du flux."""
+        self.status_icon.name = ft.Icons.CHECK_CIRCLE  if self.flow_is_active else ft.Icons.CANCEL
         self.status_icon.color = "green" if self.flow_is_active else "red"
-        self.update()  # Rafraîchir l'affichage
+        self.update()  
 
     def update_flux(self, e):
         """Modifier le flux"""
@@ -90,4 +101,11 @@ class FlowContainer(ft.Column):
 
     def delete_flux(self, e):
         """Supprimer le flux"""
-        pass  # /!\ Doit appeler fetch_flows de la supervision
+        response = requests.delete(BASE + "flow/" + self.flow_id, json={})
+        
+        if response.status_code==204:
+            print(f'✅ Flux {self.flow_id} supprimé avec succès')
+            self.fetch_flows_callback()
+        else:
+            print(f'❌ Erreur lors de la suppression du flux {self.flow_id}')
+        # /!\ Doit appeler fetch_flows de la supervision
