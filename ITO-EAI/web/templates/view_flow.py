@@ -69,7 +69,7 @@ class FlowContainer(ft.Column):
         response = requests.post(BASE + "flow/" + self.flow_id, json=data[0])
 
         if new_status:
-            start_flow(self.flow_id, 5000, '127.0.0.1', 5001)  # Démarrer le flux si activé
+            start_flow(self.flow_id, 6000, '127.0.0.1', 6001)  # Démarrer le flux si activé
         else:
             stop_flow(self.flow_id)   # Arrêter le flux si désactivé
 
