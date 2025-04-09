@@ -9,7 +9,7 @@ from collections import deque
 from ultralytics import YOLO
 
 # === CONFIGURATION ===
-RTSP_URL = "rtsp://DomoticzSafe:251193Andrea!@192.168.1.39:554/stream1"
+RTSP_URL = "URL"
 CAMERA_NAME = "Jardin Derrière"
 OUTPUT_FOLDER = "./clips"
 MODEL_PATH = "yolov8n.pt"
@@ -18,9 +18,8 @@ PRE_RECORD_SECONDS = 10
 POST_RECORD_SECONDS = 20
 
 SENDER_EMAIL = "lefablabdecyril@gmail.com"
-SENDER_PASSWORD = "tfvedxhrgrhweuww"
-RECIPIENT_EMAILS = ["cyril.bouvart@gmail.com"]
-#RECIPIENT_EMAILS = ["cyril.bouvart@gmail.com", "cimino.andrea25@gmail.com"]
+SENDER_PASSWORD = KEY
+RECIPIENT_EMAILS = ["MAIL1, MAIL2"]
 
 # === INITIALISATION ===
 model = YOLO(MODEL_PATH)
