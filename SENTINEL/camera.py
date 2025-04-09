@@ -3,7 +3,7 @@ import cv2
 
 model = YOLO("yolov8n.pt")  # version légère, tu peux en prendre une plus grosse si tu veux
 
-url = "rtsp://DomoticzSafe:251193Andrea!@192.168.1.39:554/stream1"
+url = "URL"
 cap = cv2.VideoCapture(url)
 
 while True:
