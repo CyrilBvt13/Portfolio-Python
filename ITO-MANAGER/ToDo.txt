@@ -1,0 +1,9 @@
+Afficher le nom des taches
+Modifier la partie Gantt :
+  - Ajouter des boutons pour créer les taches
+  - Possibilité de drag and drop pour modifier l'ordonnancement des taches
+  - Mise à jour de la date actuelle
+  - Possibilité d'extraire le Gantt au format Excel / Graphique
+
+Module pour importer des CR ou des mails sur un projet 
+RAG pour retrouver une information dans les documents projets avec référence
